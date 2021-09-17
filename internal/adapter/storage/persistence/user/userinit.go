@@ -2,7 +2,7 @@ package persistence
 
 import (
 	"template/internal/adapter/storage"
-	"template/internal/constant/errorconstant"
+	"template/internal/constant/errors"
 	"template/internal/constant/model"
 
 	uuid "github.com/satori/go.uuid"
@@ -21,10 +21,10 @@ func (repo userGormRepo) CreateUser(usr *model.User) (*model.User, error) {
 	err := repo.conn.Create(&usr).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errorconstant.IDNotFound
+			return nil, errors.IDNotFound
 		}
 
-		return nil, errorconstant.ErrorUnableToSave
+		return nil, errors.ErrorUnableToSave
 	}
 	return usr, nil
 }
@@ -33,9 +33,9 @@ func (repo userGormRepo) DeleteUser(id uuid.UUID) error {
 	err := repo.conn.Delete(&model.User{}, id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return errorconstant.IDNotFound
+			return errors.IDNotFound
 		}
-		return errorconstant.ErrorUnableToDelete
+		return errors.ErrorUnableToDelete
 	}
 	return nil
 }
@@ -45,9 +45,9 @@ func (repo userGormRepo) GetUserById(id uuid.UUID) (*model.User, error) {
 	err := repo.conn.First(user, id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errorconstant.IDNotFound
+			return nil, errors.IDNotFound
 		}
-		return nil, errorconstant.ErrorUnableToFetch
+		return nil, errors.ErrorUnableToFetch
 	}
 	return user, nil
 }

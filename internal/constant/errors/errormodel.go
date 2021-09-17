@@ -1,4 +1,4 @@
-package errorconstant
+package errors
 
 type ErrorModel struct {
 	ErrorCode        string `json:"errorCode"`
