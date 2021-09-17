@@ -51,3 +51,7 @@ func (repo userGormRepo) GetUserById(id uuid.UUID) (*model.User, error) {
 	}
 	return user, nil
 }
+
+func (repo userGormRepo) GetUsers() ([]model.User, error) {
+	return nil, nil
+}

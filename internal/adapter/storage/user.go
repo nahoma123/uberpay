@@ -10,4 +10,5 @@ type UserStorage interface {
 	CreateUser(*model.User) (*model.User, error)
 	GetUserById(id uuid.UUID) (*model.User, error)
 	DeleteUser(id uuid.UUID) error
+	GetUsers() ([]model.User, error)
 }
