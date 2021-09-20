@@ -29,4 +29,3 @@ func (s smsPersistence) GetCountUnreadSmsMessages() int64 {
 	return count
 
 }
-

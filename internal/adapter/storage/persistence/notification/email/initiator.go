@@ -1,15 +1,17 @@
 package email
 
 import (
-    "gorm.io/gorm"
+	"gorm.io/gorm"
 	"template/internal/constant/model"
 )
+
 //EmailPersistence contains all services for notification interface
 type EmailPersistence interface {
 	SendEmailMessage(sms model.EmailNotification) (interface{}, error)
-	GetCountUnreadEmailMessages()(int64)
+	GetCountUnreadEmailMessages() int64
 	MigrateEmail() error
 }
+
 //emailPersistence creates gorm pointer struct
 type emailPersistence struct {
 	conn *gorm.DB

@@ -9,11 +9,12 @@ import (
 
 // Usecase interface contains function of business logic port for domain PushedNotification
 type Usecase interface {
-	Notifications() (*constant.SuccessData,*errors.ErrorModel)
+	Notifications() (*constant.SuccessData, *errors.ErrorModel)
 	PushSingleNotification(notification model.PushedNotification) (*constant.SuccessData, *errors.ErrorModel)
 	DeleteNotification(param model.PushedNotification) (*constant.SuccessData, *errors.ErrorModel)
-	GetCountUnreadPushNotificationMessages()(int64)
+	GetCountUnreadPushNotificationMessages() int64
 }
+
 //service defines all necessary service for the domain PushedNotification
 type service struct {
 	notificationPersistance publisher.NotificationPersistence

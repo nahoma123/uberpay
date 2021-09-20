@@ -64,7 +64,6 @@ var (
 	ErrorInvalidCallBackUrl      = errors.New("invalid call back url")
 	ErrUnableToSendEmailMessage  = errors.New("unable to send email message")
 	ErrUnableToSendSmsMessage    = errors.New("unable to send sms message")
-	ErrDatabaseConnection         =errors.New("database connection failed")
 
 	ErrRoleNameISEmpty		  =errors.New("role name cannot be empty")
 
@@ -72,6 +71,7 @@ var (
 
 	ErrPermissionAlreadyDefined         =errors.New("permission already defined")
 	ErrPermissionPermissionNotFound      =errors.New("permission not found")
+	ErrDatabaseConnection        = errors.New("database connection failed")
 )
 
 // Descriptions error description

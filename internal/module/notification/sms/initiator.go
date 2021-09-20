@@ -10,8 +10,9 @@ import (
 // Usecase interface contains function of business logic port for domain PushedNotification
 type Usecase interface {
 	SendSmsMessage(sms model.SMS) (*constant.SuccessData, *errors.ErrorModel)
-	GetCountUnreadSmsMessages()(int64)
+	GetCountUnreadSmsMessages() int64
 }
+
 //service defines all necessary service for the domain Usecase
 type service struct {
 	smsPersistance sms.SmsPersistence

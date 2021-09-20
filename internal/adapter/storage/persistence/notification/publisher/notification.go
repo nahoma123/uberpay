@@ -41,7 +41,7 @@ func (n notificationPersistence) PushSingleNotification(notification model.Pushe
 	err := conn.Model(&model.PushedNotification{}).Create(&notification).Error
 	if err != nil {
 		if err == gorm.ErrRegistered {
-			return nil,errors.ErrorUnableToCreate
+			return nil, errors.ErrorUnableToCreate
 		}
 		return nil, errors.ErrInvalidRequest
 	}

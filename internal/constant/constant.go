@@ -37,11 +37,11 @@ func ValidateVariable(parm interface{}, validate *validator.Validate) error {
 	return nil
 }
 func DbConnectionString() (string, error) {
-	os.Setenv("DB_HOST","localhost")
-	os.Setenv("DB_PORT","5432")
-	os.Setenv("DB_USER","postgres")
-	os.Setenv("DB_PASS","yideg2378")
-	os.Setenv("DB_NAME","demo")
+	os.Setenv("DB_HOST", "localhost")
+	os.Setenv("DB_PORT", "5432")
+	os.Setenv("DB_USER", "postgres")
+	os.Setenv("DB_PASS", "yideg2378")
+	os.Setenv("DB_NAME", "demo")
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")

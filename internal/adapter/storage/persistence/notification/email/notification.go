@@ -28,4 +28,3 @@ func (e emailPersistence) GetCountUnreadEmailMessages() int64 {
 	db.Model(&model.EmailNotification{}).Where("status = ?", "unread").Count(&count)
 	return count
 }
-

@@ -2,7 +2,7 @@ CREATE TABLE "EmailNotification"(
                                     "id" UUID DEFAULT uuid_generate_v4 () NOT NULL,
                                     "body" VARCHAR(255) NOT NULL,
                                     "from" VARCHAR(255) NOT NULL,
-                                    "to"   text[] NOT NULL,
+                                    "to"   VARCHAR(255) NOT NULL,
                                     "subject" VARCHAR(255) NOT NULL,
                                     "status" VARCHAR(255) NOT NULL,
                                     "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE "EmailNotification"(
 CREATE TABLE "PushedNotification"(
                                      "id" UUID DEFAULT uuid_generate_v4 () NOT NULL,
                                      "api_key" VARCHAR(255) NOT NULL,
-                                     "token" text[] NOT NULL,
+                                     "token" VARCHAR(255) NOT NULL,
                                      "Title" VARCHAR(255) NOT NULL,
                                      "body" VARCHAR(255) NOT NULL,
                                      "data" VARCHAR(255) NOT NULL,
