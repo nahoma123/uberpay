@@ -2,6 +2,6 @@ package main
 
 import "template/initiator"
 
-func Run() {
+func main() {
 	initiator.Initialize()
 }
