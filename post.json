@@ -1,0 +1,33 @@
+//
+//{
+//  "password":"hhaocs46",
+//  "user":"tgixhorizon756",
+//  "sender_id":"2F",
+//  "call_back_url":"http://localhost:8080/send/sms/call_back",
+//  "api_gate_way":"https://enterprise.teklogix.et/messaging-api/hor/v4_0/message",
+//  "body":"Hello from 176 subscribe to get excellent information",
+//  "receiver_phone" : "+251934578879",
+//  "status":"unread",
+//  "created_at":"2018-09-22T19:42:31+07:00",
+//  "updated_at":"2018-09-22T19:42:31+07:00"
+//},
+//{
+//"body": "Hi Dear customer tommorrow moring we will have a meeting at 8:30-11:00AM Be punctual as mutch as posible ",
+//"from": "misganewendeg879@gmail.com",
+//"to": "2fnotifier@gmail.com",
+//"subject": "New Meeting Alert",
+//"status": "unread",
+//"created_at": "2018-09-22T19:42:31+07:00",
+//"updated_at": "2018-09-22T19:42:31+07:00"
+//}
+//,
+//{
+//"api_key":"AIzaSyC60cjN7pnreo-RvvF-UO2E9GP-iNsMn-U",
+//"token":"AAAA1noAIhw:APA91bGeL8mC0tybJrjlqv5Ye9aPfpcDBbW3IFU8TcyYwtKMWq04qtEWrGS7lxBNIlSNCIr5vmWn-3X1dMCWNTwAhhJL5bhuhoTYVjhvKYZBttmxgiqlhvAEmBZ8-EEbtznXC7LNXSIm",
+//"title":"good moring",
+//"body":"Today is bright day",
+//"data":"go any where to you want ",
+//"status":"unread",
+//"created_at":"2018-09-22T19:42:31+07:00",
+//"updated_at":"2018-09-22T19:42:31+07:00"
+//}
