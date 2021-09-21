@@ -1,8 +1,10 @@
 package initiator
 
 import (
+	"fmt"
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
+	"github.com/joho/godotenv"
 	gomail "gopkg.in/mail.v2"
 	"log"
 	"net/http"
@@ -23,6 +25,7 @@ import (
 	"template/internal/adapter/storage/persistence/notification/sms"
 	"template/internal/adapter/storage/persistence/role"
 	"template/internal/adapter/storage/persistence/user"
+	"template/internal/constant"
 	"template/internal/constant/model"
 	authUsecase "template/internal/module/auth"
 	compUsecase "template/internal/module/company"
@@ -41,9 +44,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
-
-	//"github.com/casbin/casbin/v2"
-	//gormadapter "github.com/casbin/gorm-adapter/v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -56,14 +56,23 @@ var (
 )
 
 func Initialize() {
-
+	// load .env file
+	err := godotenv.Load("../../.env")
+	fmt.Println("err ",err,"os host ",os.Getenv("DB_USER") )
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 	en := en.New()
 	uni := ut.New(en, en)
 	trans, _ = uni.GetTranslator("en")
 	validate = validator.New()
 	en_translations.RegisterDefaultTranslations(validate, trans)
 
-	DATABASE_URL := "postgres://postgres:yideg2378@localhost:5432/demo?sslmode=disable"
+	//DATABASE_URL := "postgres://postgres:yideg2378@localhost:5432/demo?sslmode=disable"
+	DATABASE_URL, err := constant.DbConnectionString()
+	if err != nil {
+		log.Fatal("database connection failed!")
+	}
 	conn, err := gorm.Open(postgres.Open(DATABASE_URL), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
@@ -71,8 +80,13 @@ func Initialize() {
 		log.Printf("Error when Opening database connection: %v", err)
 		os.Exit(1)
 	}
-
-	conn.AutoMigrate(&model.Role{}, &model.User{}, &model.UserCompanyRole{}, &model.Company{})
+	conn.AutoMigrate(&model.PushedNotification{},
+		&model.EmailNotification{},
+		&model.SMS{},
+		&model.Role{},
+		&model.User{},
+		&model.UserCompanyRole{},
+		&model.Company{})
 
 	a, _ := gormadapter.NewAdapterByDBWithCustomTable(conn, &model.CasbinRule{})
 	e, err := casbin.NewEnforcer("../../rbac_model.conf", a)
@@ -100,10 +114,9 @@ func Initialize() {
 
 	//notification handlers
 	m := gomail.NewMessage()
-	v := validator.New()
-	emailHandler := email3.NewEmailHandler(emailUsecase, v, m)
-	smsHandler := sms3.NewSmsHandler(smsUsecase, v)
-	publisherHandler := publisher3.NewNotificationHandler(publisherUsecase, v)
+	emailHandler := email3.NewEmailHandler(emailUsecase, validate, m)
+	smsHandler := sms3.NewSmsHandler(smsUsecase, validate)
+	publisherHandler := publisher3.NewNotificationHandler(publisherUsecase, validate)
 
 	roleUsecase := roleUsecase.RoleInitialize(rolePersistent)
 	roleHandler := rlHandler.NewRoleHandler(roleUsecase, trans)
@@ -123,10 +136,8 @@ func Initialize() {
 	permHandler := permHandler.PermissionInit(casbinAuth, trans)
 
 	router := gin.Default()
-
-	//router.Use(authHandlers.Authorizer(e))
-	//router.Use(corsMW())
-
+	router.Use(authHandlers.Authorizer(e))
+	router.Use(corsMW())
 	v1 := router.Group("/v1")
 	routing.UserRoutes(v1, usrHandler)
 	routing.CompanyRoutes(v1, compHandler)
@@ -140,11 +151,10 @@ func Initialize() {
 	router.Run()
 
 	logrus.WithFields(logrus.Fields{
-		"host": "127.0.0.1",
-		"port": ":8080",
+		"host": os.Getenv("SERVER_HOST"),
+		"port": os.Getenv("SERVER_PORT"),
 	}).Info("Starts Serving on HTTP")
-
-	log.Fatal(http.ListenAndServe("127.0.0.1"+":"+"8080", router))
+	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_HOST")+":"+os.Getenv("SERVER_PORT"), router))
 }
 func corsMW() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -161,4 +171,3 @@ func corsMW() gin.HandlerFunc {
 	}
 
 }
-

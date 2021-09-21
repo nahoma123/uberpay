@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/satori/go.uuid"
 	"net/http"
+	"os"
 	"strconv"
 	"template/internal/constant"
 	"template/internal/constant/errors"
@@ -40,6 +41,8 @@ func NewNotificationHandler(notfCase publisher.Usecase, valid *validator.Validat
 func (n notificationHandler) MiddleWareValidateNotification(c *gin.Context) {
 	notification := model.PushedNotification{}
 	err := c.Bind(&notification)
+	notification.Token=os.Getenv("TOKEN")
+	notification.ApiKey=os.Getenv("APIKEY")
 	if err != nil {
 		errValue := errors.ErrorModel{
 			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrInvalidRequest]),
@@ -81,7 +84,6 @@ func (n notificationHandler) GetNotifications(c *gin.Context) {
 
 //PushNotification pushes message via valid device token
 func (n notificationHandler) PushNotification(c *gin.Context) {
-	n.MiddleWareValidateNotification(c)
 	notification := c.MustGet("x-notification").(model.PushedNotification)
 	// TODO:01 push notification code put here
 	data := notification
@@ -170,7 +172,7 @@ func NewClientNotification(msg *fcm.Message) (*fcm.Response, *errors.ErrorModel)
 	client, err := fcm.NewClient(msg.Data["api_key"].(string))
 	if err != nil {
 		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrInvalidClient]),
+			ErrorCode:        strconv.Itoa(errors.ErrCodes[errors.ErrInvalidClient]),
 			ErrorDescription: errors.Descriptions[errors.ErrInvalidClient],
 			ErrorMessage:     errors.ErrInvalidClient.Error(),
 		}
@@ -180,7 +182,7 @@ func NewClientNotification(msg *fcm.Message) (*fcm.Response, *errors.ErrorModel)
 	fcmResponse, err := client.Send(msg)
 	if err != nil {
 		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrUnauthorizedClient]),
+			ErrorCode:        strconv.Itoa(errors.ErrCodes[errors.ErrUnauthorizedClient]),
 			ErrorDescription: errors.Descriptions[errors.ErrUnauthorizedClient],
 			ErrorMessage:     errors.ErrUnauthorizedClient.Error(),
 		}

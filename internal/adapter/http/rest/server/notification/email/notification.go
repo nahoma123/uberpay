@@ -62,7 +62,6 @@ func (n emailHandler) MiddleWareValidateEmailMessage(c *gin.Context) {
 
 //SendEmailMessage send email message via valid email
 func (n emailHandler) SendEmailMessage(c *gin.Context) {
-	n.MiddleWareValidateEmailMessage(c)
 	email := c.MustGet("x-email").(model.EmailNotification)
 	// TODO:01 email notification code put here
 	err := SendEmail(email, n.m)
@@ -109,11 +108,10 @@ func SendEmail(email model.EmailNotification, m *gomail.Message) error {
 	m.SetHeader("To", email.To)
 	m.SetHeader("Subject", email.Subject)
 	m.SetBody("text/plain", email.Body)
-	os.Setenv("SMTP_PORT", "587")
-	os.Setenv("SMTP_PASSWORD", "yideg2378")
-	os.Setenv("SMTP_SERVER", "smtp.gmail.com")
+	//os.Setenv("SMTP_PORT", "587")
+	//os.Setenv("SMTP_PASSWORD", "yideg2378")
+	//os.Setenv("SMTP_SERVER", "smtp.gmail.com")
 	port, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
-
 	if err != nil {
 		return errors.ErrorUnableToConvert
 	}

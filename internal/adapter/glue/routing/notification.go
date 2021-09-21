@@ -11,18 +11,18 @@ import (
 func PublisherRoutes(gp *gin.RouterGroup, pub publisher.NotificationHandler) {
 	gp.GET("/notifications", pub.GetNotifications)
 	gp.GET("/notifications/unread/publish", pub.GetCountUnreadPushNotificationMessages)
-	gp.POST("/notifications", pub.PushNotification)
+	gp.POST("/notifications", pub.MiddleWareValidateNotification, pub.PushNotification)
 	gp.DELETE("/notifications/:id", pub.DeleteNotification)
 }
 
 //EmailRoutes registers Email Message routes
 func EmailRoutes(gp *gin.RouterGroup, email email.EmailHandler) {
 	gp.GET("/notification/unread/email", email.GetCountUnreadEmailMessages)
-	gp.POST("/notification/email", email.SendEmailMessage)
+	gp.POST("/notification/email", email.MiddleWareValidateEmailMessage, email.SendEmailMessage)
 }
 
 //SmsRoutes registers Sms Message routes
 func SmsRoutes(gp *gin.RouterGroup, s sms.SmsHandler) {
-	gp.POST("/notification/sms", s.SendSmsMessage)
+	gp.POST("/notification/sms", s.MiddleWareValidateSmsMessage, s.SendSmsMessage)
 	gp.GET("/notification/unread/sms", s.GetCountUnreadSMsMessages)
 }

@@ -1,6 +1,7 @@
 package publisher
 
 import (
+	"fmt"
 	"net/http"
 	"template/internal/constant"
 	"template/internal/constant/errors"
@@ -38,6 +39,7 @@ func (s service) PushSingleNotification(notification model.PushedNotification) (
 		return nil, &errorData
 	}
 	newnotification, err := s.notificationPersistance.PushSingleNotification(notification)
+	fmt.Println("error ", err)
 	if err != nil {
 		errorData := errors.NewErrorResponse(err)
 		return nil, &errorData

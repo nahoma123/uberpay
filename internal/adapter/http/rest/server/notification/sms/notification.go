@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"template/internal/constant"
@@ -36,6 +37,10 @@ func NewSmsHandler(s sms.Usecase, valid *validator.Validate) SmsHandler {
 func (n smsHandler) MiddleWareValidateSmsMessage(c *gin.Context) {
 	sms := model.SMS{}
 	err := c.Bind(&sms)
+	sms.User=os.Getenv("SMS_USER")
+	sms.SenderId=os.Getenv("SMS_SENDER")
+	sms.ApiGateWay=os.Getenv("SMS_API_GATE_WAY")
+	sms.CallBackUrl=os.Getenv("SMS_CALLBACK_URL")
 	if err != nil {
 		errValue := errors.ErrorModel{
 			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrInvalidRequest]),
@@ -56,7 +61,6 @@ func (n smsHandler) MiddleWareValidateSmsMessage(c *gin.Context) {
 
 //SendSmsMessage  sends sms message to a user via phone number
 func (n smsHandler) SendSmsMessage(c *gin.Context) {
-	n.MiddleWareValidateSmsMessage(c)
 	sms := c.MustGet("x-sms").(model.SMS)
 	// TODO:01 sms notification code put here
 	fmt.Println("TODO 01")

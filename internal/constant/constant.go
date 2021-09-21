@@ -14,9 +14,12 @@ type SuccessData struct {
 	Data interface{}
 }
 
+//ResponseJson returns json data
 func ResponseJson(c *gin.Context, responseData interface{}, statusCode int) {
 	c.JSON(statusCode, responseData)
 }
+
+//StructValidator validates  interfaces
 func StructValidator(structName interface{}, validate *validator.Validate) *errors.ErrorModel {
 	err := validate.Struct(structName)
 	if err != nil {
@@ -29,6 +32,7 @@ func StructValidator(structName interface{}, validate *validator.Validate) *erro
 	return nil
 }
 
+//ValidateVariable validates variables
 func ValidateVariable(parm interface{}, validate *validator.Validate) error {
 	errs := validate.Var(parm, "required")
 	if errs != nil {
@@ -36,19 +40,15 @@ func ValidateVariable(parm interface{}, validate *validator.Validate) error {
 	}
 	return nil
 }
+
+//DbConnectionString returns  connection string from the env file using os package
 func DbConnectionString() (string, error) {
-	os.Setenv("DB_HOST", "localhost")
-	os.Setenv("DB_PORT", "5432")
-	os.Setenv("DB_USER", "postgres")
-	os.Setenv("DB_PASS", "yideg2378")
-	os.Setenv("DB_NAME", "demo")
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASS")
 	dbname := os.Getenv("DB_NAME")
 	addr := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v", host, user, password, dbname, port)
-
 	return addr, nil
 
 }
