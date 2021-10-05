@@ -9,9 +9,9 @@ type UserClaims struct {
 	CompanyID string `json:"company_id,omitempty"`
 }
 type LoginResponse struct {
-	Token           string `json:"token"`
-	Name            string `json:"name"`
-	Email           string `json:"email"`
-	Phone           string `json:"phone"`
-	Role            string `json:"role"`
+	Token string `json:"token"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+	Role  string `json:"role"`
 }

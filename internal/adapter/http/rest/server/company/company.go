@@ -1,89 +1,126 @@
 package company
 
 import (
-	"errors"
-	"net/http"
-	appErr "template/internal/constant/errors"
-	"template/internal/constant/model"
-	"template/internal/module/company"
-
 	"github.com/gin-gonic/gin"
-	ut "github.com/go-playground/universal-translator"
 	uuid "github.com/satori/go.uuid"
+	"net/http"
+	"os"
+	"strings"
+	"template/internal/adapter/http/rest/server"
+	"template/internal/constant"
+	custErr "template/internal/constant/errors"
+	"template/internal/constant/model"
+	"template/internal/module"
 )
 
-type CompanyHandler interface {
-	Companies(c *gin.Context)
-	CreateCompany(c *gin.Context)
-	GetCompanyById(c *gin.Context)
-	DeleteCompany(c *gin.Context)
-}
 
+
+// companyHandler defines all the things necessary for company handlers
 type companyHandler struct {
-	compUsecase company.Usecase
-	trans       ut.Translator
+	companyUsecase module.CompanyUsecase
 }
 
-func CompanyInit(compUsecase company.Usecase, trans ut.Translator) CompanyHandler {
-	return &companyHandler{
-		compUsecase,
-		trans,
+//CompanyInit initializes a company handler for the domin company
+func CompanyInit(cmp module.CompanyUsecase) server.CompanyHandler {
+	return companyHandler{
+		companyUsecase: cmp,
 	}
 }
-
-func (ch companyHandler) Companies(c *gin.Context) {
-  companies, err := ch.compUsecase.Companies()
+func (com companyHandler) MiddleWareValidateCompany(c *gin.Context) {
+	compX := &model.Company{}
+	err := c.Bind(compX)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"errors": appErr.NewErrorResponse(err)})
+		constant.ResponseJson(c, custErr.NewErrorResponse(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 		return
 	}
-
-	c.JSON(http.StatusOK,  companies)
+	c.Set("x-company", *compX)
+	c.Next()
 }
-func (ch companyHandler) CreateCompany(c *gin.Context) {
-	var insertCompany model.Company
-	if err := c.ShouldBind(&insertCompany); err != nil {
-		// var verr validator.ValidationErrors
-
-		// if errors.As(err, &verr) {
-		// 	c.JSON(http.StatusBadRequest, gin.H{"errors": verr.Translate(ch.trans)})
-		// 	return
-		// }
-		c.JSON(http.StatusBadRequest, gin.H{"errors": appErr.NewErrorResponse(appErr.ErrUnknown)})
-		return
-
-	}
-	company, err := ch.compUsecase.CreateCompany(&insertCompany)
+func (com companyHandler) CompanyByID(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("company-id"))
 	if err != nil {
-		if errors.As(err, &appErr.ValErr{}) {
-			c.JSON(http.StatusBadRequest, gin.H{"errors": err})
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+	}
+	comp := model.Company{ID: id}
+	ctx := c.Request.Context()
+	successData, err := com.companyUsecase.CompanyByID(ctx, comp)
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, successData, http.StatusOK)
+}
+
+func (com companyHandler) Companies(c *gin.Context) {
+	ctx := c.Request.Context()
+	successData, err := com.companyUsecase.Companies(ctx)
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, successData, http.StatusOK)
+}
+func (com companyHandler) StoreCompany(c *gin.Context) {
+	comp := c.MustGet("x-company").(model.Company)
+	ctx := c.Request.Context()
+	successData, err := com.companyUsecase.StoreCompany(ctx, comp)
+	if err != nil {
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
+			errValue := custErr.ErrorModel{
+				ErrorCode:        custErr.ErrCodes[custErr.ErrInvalidField],
+				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
+				ErrorMessage:     e,
+			}
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"errors": appErr.NewErrorResponse(appErr.ErrUnknown)})
+		constant.ResponseJson(c, custErr.NewErrorResponse(err), custErr.ErrCodes[err])
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"company": company})
-
+	constant.ResponseJson(c, *successData, http.StatusOK)
 }
 
-func (ch companyHandler) GetCompanyById(c *gin.Context) {
-	ID := c.Param("id")
-
-	id, err := uuid.FromString(ID)
+func (com companyHandler) UpdateCompany(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("company-id"))
 	if err != nil {
-		// TODO: this error is not in errors package
-		c.JSON(http.StatusBadRequest, gin.H{"errors": appErr.NewErrorResponse(err)})
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+	}
+	comp := model.Company{ID: id}
+	ctx := c.Request.Context()
+	successData, err := com.companyUsecase.UpdateCompany(ctx, comp)
+	if err != nil {
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
+			errValue := custErr.ErrorModel{
+				ErrorCode:        custErr.ErrCodes[custErr.ErrInvalidField],
+				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
+				ErrorMessage:     e,
+			}
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			return
+		}
+		constant.ResponseJson(c, custErr.NewErrorResponse(err), custErr.ErrCodes[err])
 		return
 	}
-
-	company, err := ch.compUsecase.GetCompanyById(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"errors": appErr.NewErrorResponse(err)})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"company": company})
-
+	constant.ResponseJson(c, *successData, http.StatusOK)
 }
 
-func (ch companyHandler) DeleteCompany(c *gin.Context) {}
+func (com companyHandler) DeleteCompany(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("company-id"))
+	if err != nil {
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+	}
+	comp := model.Company{ID: id}
+	ctx := c.Request.Context()
+	err = com.companyUsecase.DeleteCompany(ctx, comp)
+
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, "company Deleted", http.StatusOK)
+}

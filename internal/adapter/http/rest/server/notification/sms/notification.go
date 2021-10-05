@@ -6,29 +6,25 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
-	"strconv"
+	"os"
 	"strings"
+	"template/internal/adapter/http/rest/server"
 	"template/internal/constant"
 	"template/internal/constant/errors"
 	"template/internal/constant/model"
-	"template/internal/module/notification/sms"
+	"template/internal/module"
 )
 
-//SmsHandler contains all handler interfaces
-type SmsHandler interface {
-	MiddleWareValidateSmsMessage(c *gin.Context)
-	SendSmsMessage(c *gin.Context)
-	GetCountUnreadSMsMessages(c *gin.Context)
-}
+
 
 //smsHandler implements sms servicea and golang validator object
 type smsHandler struct {
-	smsUseCase sms.Usecase
+	smsUseCase  module.SmsUsecase
 	validate   *validator.Validate
 }
 
 //NewSmsHandler  initializes notification services and golang validator
-func NewSmsHandler(s sms.Usecase, valid *validator.Validate) SmsHandler {
+func NewSmsHandler(s  module.SmsUsecase, valid *validator.Validate) server.SmsHandler {
 	return &smsHandler{smsUseCase: s, validate: valid}
 }
 
@@ -36,56 +32,64 @@ func NewSmsHandler(s sms.Usecase, valid *validator.Validate) SmsHandler {
 func (n smsHandler) MiddleWareValidateSmsMessage(c *gin.Context) {
 	sms := model.SMS{}
 	err := c.Bind(&sms)
+	sms.User = os.Getenv("SMS_USER")
+	sms.SenderId = os.Getenv("SMS_SENDER")
+	sms.ApiGateWay = os.Getenv("SMS_API_GATE_WAY")
+	sms.CallBackUrl = os.Getenv("SMS_CALLBACK_URL")
+	sms.Password = os.Getenv("SMS_PASSWORD")
 	if err != nil {
 		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrInvalidRequest]),
+			ErrorCode:        errors.ErrCodes[errors.ErrInvalidRequest],
 			ErrorDescription: errors.Descriptions[errors.ErrInvalidRequest],
 			ErrorMessage:     errors.ErrInvalidRequest.Error(),
 		}
 		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidRequest])
 		return
 	}
-	errV := constant.StructValidator(sms, n.validate)
-	if errV != nil {
-		constant.ResponseJson(c, errV, errors.StatusCodes[errors.ErrorUnableToBindJsonToStruct])
-		return
-	}
 	c.Set("x-sms", sms)
-	//c.Next()
+	c.Next()
 }
 
 //SendSmsMessage  sends sms message to a user via phone number
 func (n smsHandler) SendSmsMessage(c *gin.Context) {
-	n.MiddleWareValidateSmsMessage(c)
+	ctx := c.Request.Context()
 	sms := c.MustGet("x-sms").(model.SMS)
 	// TODO:01 sms notification code put here
-	fmt.Println("TODO 01")
 	_, err := SendSmsMessage(sms)
+	fmt.Println("error sms ", err)
 	if err != nil {
 		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrUnableToSendSmsMessage]),
+			ErrorCode:        errors.ErrCodes[errors.ErrUnableToSendSmsMessage],
 			ErrorDescription: errors.Descriptions[errors.ErrUnableToSendSmsMessage],
 			ErrorMessage:     errors.ErrUnableToSendSmsMessage.Error(),
 		}
-		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrorUnableToConvert])
+		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrUnableToSendSmsMessage])
 		return
 	}
 	// TODO:02 sms notification data store in the database put here
-	fmt.Println("<<< TODO:02 >>>")
-	data, errData := n.smsUseCase.SendSmsMessage(sms)
-	fmt.Println("err ", errData)
-	if errData != nil {
-		code, _ := strconv.Atoi(errData.ErrorCode)
-		constant.ResponseJson(c, *errData, code)
+	data, err := n.smsUseCase.SendSmsMessage(ctx, sms)
+	if err != nil {
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
+			errValue := errors.ErrorModel{
+				ErrorCode:        errors.ErrCodes[errors.ErrInvalidField],
+				ErrorDescription: errors.Descriptions[errors.ErrInvalidField],
+				ErrorMessage:     e,
+			}
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			return
+		}
+		constant.ResponseJson(c, errors.NewErrorResponse(err), errors.ErrCodes[err])
 		return
 	}
-	constant.ResponseJson(c, *data, data.Code)
+	constant.ResponseJson(c, *data, http.StatusOK)
 	return
 }
 
 //GetCountUnreadSMsMessages counts unread sms message
 func (n smsHandler) GetCountUnreadSMsMessages(c *gin.Context) {
-	count := n.smsUseCase.GetCountUnreadSmsMessages()
+	ctx := c.Request.Context()
+	count := n.smsUseCase.GetCountUnreadSmsMessages(ctx)
 	constant.ResponseJson(c, map[string]interface{}{"count": count}, http.StatusOK)
 }
 
@@ -106,6 +110,8 @@ func SendSmsMessage(sms model.SMS) (interface{}, error) {
 	requestBody := strings.NewReader(reqString)
 	// post some data
 	res, err := http.Post(sms.ApiGateWay, "application/json; charset=UTF-8", requestBody)
+	fmt.Println("error2 sms ", err)
+
 	if err != nil {
 		return nil, errors.ErrUnableToSendSmsMessage
 	}

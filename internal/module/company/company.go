@@ -1,65 +1,77 @@
 package company
 
 import (
-	"template/internal/adapter/storage/persistence/company"
+	"context"
+	company "template/internal/adapter/storage/persistence"
+	"template/internal/constant"
 	"template/internal/constant/model"
-
-	appErr "template/internal/constant/errors"
+	"template/internal/module"
+	"time"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	uuid "github.com/satori/go.uuid"
 )
 
-// Usecase interface contains function of business logic for domian Company
-type Usecase interface {
-	Companies() ([]model.Company, error)
-	CreateCompany(company *model.Company) (*model.Company, error)
-	GetCompanyById(id uuid.UUID) (*model.Company, error)
-	DeleteUser(id uuid.UUID) error
-}
 
-//Service defines all neccessary service for the domain Company
+//Service defines all necessary service for the domain Company
 type service struct {
-	companyPersist company.CompanyStorage
+	companyPersist company.CompanyPersistence
 	validate       *validator.Validate
 	trans          ut.Translator
+	contextTimeout time.Duration
 }
 
-// creates a new object with UseCase type
-func Initialize(companyPersist company.CompanyStorage, validate *validator.Validate, trans ut.Translator) Usecase {
+//Initialize  creates a new object with UseCase type
+func Initialize(companyPersist company.CompanyPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.CompanyUsecase {
 	return &service{
-		companyPersist,
-		validate,
-		trans,
+		companyPersist: companyPersist,
+		validate:       validate,
+		trans:          trans,
+		contextTimeout: timeout,
 	}
 }
-func (s *service)Companies() ([]model.Company, error){
 
-	companies, err := s.companyPersist.Companies()
-	if err != nil {
-		return nil,err
+func (s *service) CompanyByID(c context.Context, param model.Company) (*model.Company, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	return s.companyPersist.CompanyByID(ctx, param)
+}
+
+func (s *service) StoreCompany(c context.Context, param model.Company) (*model.Company, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	errV := constant.StructValidator(param, s.validate, s.trans)
+	if errV != nil {
+		return nil, errV
 	}
-	return companies, nil
+	return s.companyPersist.StoreCompany(ctx, param)
+
 }
 
-func (s *service) CreateCompany(comp *model.Company) (*model.Company, error) {
-
-	valErr := s.validate.Struct(comp)
-
-	if valErr != nil {
-		errs := valErr.(validator.ValidationErrors)
-		valErr := errs.Translate(s.trans)
-		return nil, appErr.NewValErrResponse(valErr)
+func (s *service) UpdateCompany(c context.Context, param model.Company) (*model.Company, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	errV := constant.StructValidator(param, s.validate, s.trans)
+	if errV != nil {
+		return nil, errV
 	}
-
-	return s.companyPersist.CreateCompany(comp)
+	return s.companyPersist.UpdateCompany(ctx, param)
 }
 
-func (s *service) GetCompanyById(id uuid.UUID) (*model.Company, error) {
-	return s.companyPersist.GetCompanyById(id)
+func (s *service) DeleteCompany(c context.Context, param model.Company) error {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	return s.companyPersist.DeleteCompany(ctx, param)
 }
 
-func (s *service) DeleteUser(id uuid.UUID) error {
-	return nil
+func (s *service) CompanyExists(c context.Context, param model.Company) (bool, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	return s.companyPersist.CompanyExists(ctx, param)
+}
+
+func (s *service) Companies(c context.Context) ([]model.Company, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	return s.companyPersist.Companies(ctx)
 }

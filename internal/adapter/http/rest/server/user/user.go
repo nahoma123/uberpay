@@ -1,160 +1,198 @@
 package user
 
 import (
-	"errors"
-	"net/http"
-	errModel "template/internal/constant/errors"
-	"template/internal/constant/model"
-	"template/internal/module/user"
-
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
-
-	ut "github.com/go-playground/universal-translator"
+	"net/http"
+	"os"
+	"strings"
+	"template/internal/adapter/http/rest/server"
+	"template/internal/constant"
+	custErr "template/internal/constant/errors"
+	"template/internal/constant/model"
+	"template/internal/module"
 )
 
-// UserHandler contans a function of handlers for the domian file
-type UserHandler interface {
-	CreateUser(c *gin.Context)
-	CreateSystemUser(c *gin.Context)
-	GetUserById(c *gin.Context)
-	DeleteUser(c *gin.Context)
-	GetUsers(c *gin.Context)
-}
 
 // userHandler defines all the things neccessary for users handlers
 type userHandler struct {
-	userUsecase user.Usecase
-	trans       ut.Translator
+	userUsecase  module.UserUsecase
 }
 
-//UserInit initializes a user handler for the domin user
-func UserInit(userUsecase user.Usecase, trans ut.Translator) UserHandler {
-	return &userHandler{
-		userUsecase,
-		trans,
+//UserInit initializes a company handler for the domin company
+func UserInit(urs module.UserUsecase) server.UserHandler {
+	return userHandler{
+		userUsecase: urs,
 	}
 }
-
-// CreateUser creates a new user
-// POST /v1/:com-id/users
-func (uh userHandler) CreateUser(c *gin.Context) {
-	ID := c.Param("comp-id")
-
-	compID, err := uuid.FromString(ID)
+func (com userHandler) MiddleWareValidateUser(c *gin.Context) {
+	user := &model.Company{}
+	err := c.Bind(user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errModel.NewErrorResponse(err)})
+		constant.ResponseJson(c, custErr.NewErrorResponse(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 		return
 	}
-
-	var insertUser model.User
-
-	if err := c.ShouldBind(&insertUser); err != nil {
-
-		// var verr validator.ValidationErrors
-
-		// if errors.As(err, &verr) {
-		// 	c.JSON(http.StatusBadRequest, gin.H{"errors": verr.Translate(uh.trans)})
-		// 	return
-		// }
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errModel.NewErrorResponse(errModel.ErrUnknown)})
-		return
-
-	}
-	user, err := uh.userUsecase.CreateUser(compID, &insertUser)
-
+	c.Set("x-user", *user)
+	c.Next()
+}
+func (uh userHandler) UserByID(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("user-id"))
 	if err != nil {
-		if errors.As(err, &errModel.ValErr{}) {
-			c.JSON(http.StatusBadRequest, gin.H{"errors": err})
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+	}
+	usr := model.User{ID: id}
+	ctx := c.Request.Context()
+	successData, err := uh.userUsecase.UserByID(ctx, usr)
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, successData, http.StatusOK)
+}
+
+func (uh userHandler) Users(c *gin.Context) {
+	ctx := c.Request.Context()
+	successData, err := uh.userUsecase.Users(ctx)
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, successData, http.StatusOK)
+}
+
+func (uh userHandler) UpdateUser(c *gin.Context) {
+	usr := c.MustGet("x-user").(model.User)
+	ctx := c.Request.Context()
+	successData, err := uh.userUsecase.UpdateUser(ctx, usr)
+	if err != nil {
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
+			errValue := custErr.ErrorModel{
+				ErrorCode:        custErr.ErrCodes[custErr.ErrInvalidField],
+				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
+				ErrorMessage:     e,
+			}
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errModel.NewErrorResponse(err)})
+		constant.ResponseJson(c, custErr.NewErrorResponse(err), custErr.ErrCodes[err])
 		return
 	}
-
-	c.JSON(http.StatusCreated, gin.H{"user": user})
+	constant.ResponseJson(c, *successData, http.StatusOK)
 }
 
-func (uh userHandler) CreateSystemUser(c *gin.Context) {
-
-	var insertUser model.User
-
-	if err := c.ShouldBind(&insertUser); err != nil {
-
-		// var verr validator.ValidationErrors
-
-		// if errors.As(err, &verr) {
-		// 	c.JSON(http.StatusBadRequest, gin.H{"errors": verr.Translate(uh.trans)})
-		// 	return
-		// }
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errModel.NewErrorResponse(errModel.ErrUnknown)})
-		return
-
-	}
-	user, err := uh.userUsecase.CreateSystemUser( &insertUser)
-
+func (uh userHandler) StoreUser(c *gin.Context) {
+	usr := c.MustGet("x-user").(model.User)
+	ctx := c.Request.Context()
+	successData, err := uh.userUsecase.StoreUser(ctx, usr)
 	if err != nil {
-		if errors.As(err, &errModel.ValErr{}) {
-			c.JSON(http.StatusBadRequest, gin.H{"errors": err})
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
+			errValue := custErr.ErrorModel{
+				ErrorCode:        custErr.ErrCodes[custErr.ErrInvalidField],
+				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
+				ErrorMessage:     e,
+			}
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errModel.NewErrorResponse(err)})
+		constant.ResponseJson(c, custErr.NewErrorResponse(err), custErr.ErrCodes[err])
 		return
 	}
-
-	c.JSON(http.StatusCreated, gin.H{"user": user})
-
+	constant.ResponseJson(c, *successData, http.StatusOK)
 }
-// GetUserById gets a user by id
-func (uh userHandler) GetUserById(c *gin.Context) {
-
-	ID := c.Param("id")
-
-	id, err := uuid.FromString(ID)
+func (uh userHandler) AddUserToCompany(c *gin.Context) {
+	ctx := c.Request.Context()
+	id, err := uuid.FromString(c.Param("user-id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errModel.NewErrorResponse(err)})
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+	}
+	usr := model.User{ID: id}
+	user, err := uh.userUsecase.UserByID(ctx, usr)
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
 		return
 	}
-
-	user, err := uh.userUsecase.GetUserById(id)
+	companyID, err := uuid.FromString(c.GetString("x-companyid"))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"errors": errModel.NewErrorResponse(err)})
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"user": user})
-
+	cmpu := model.CompanyUser{
+		UserID:    user.ID,
+		CompanyID: companyID,
+		Role:      usr.RoleName,
+	}
+	err = uh.userUsecase.AddUserToCompany(ctx, cmpu)
+	if err != nil {
+		constant.ResponseJson(c, custErr.NewErrorResponse(err), http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, "New User added to company", http.StatusOK)
 }
 
-// DeleteUser deletes user by id
+func (uh userHandler) RemoveUserFromCompany(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("user-id"))
+	if err != nil {
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+	}
+	usr := model.User{ID: id}
+	ctx := c.Request.Context()
+	err = uh.userUsecase.RemoveUser(ctx, model.CompanyUser{UserID: usr.ID})
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, "User Remove from company database", http.StatusOK)
+}
+
+func (uh userHandler) GetCompanyUsers(c *gin.Context) {
+	ctx := c.Request.Context()
+	companyID, err := uuid.FromString(c.GetString("x-companyid"))
+	if err != nil {
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+		return
+	}
+	successData, err := uh.userUsecase.GetCompanyUsers(ctx, companyID)
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, successData, http.StatusOK)
+}
+func (uh userHandler) GetCompanyUserByID(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("user-id"))
+	if err != nil {
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+	}
+	usr := model.User{ID: id}
+	ctx := c.Request.Context()
+	successData, err := uh.userUsecase.GetCompanyUserByID(ctx, usr.ID)
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, successData, http.StatusOK)
+}
+
 func (uh userHandler) DeleteUser(c *gin.Context) {
-	ID := c.Param("id")
-
-	id, err := uuid.FromString(ID)
+	id, err := uuid.FromString(c.Param("user-id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errModel.NewErrorResponse(err)})
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+	}
+	usr := model.User{ID: id}
+	ctx := c.Request.Context()
+	err = uh.userUsecase.DeleteUser(ctx, usr)
+	if err != nil {
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
 		return
 	}
-
-	err = uh.userUsecase.DeleteUser(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"errors": errModel.NewErrorResponse(err)})
-		return
-	}
-
-	c.JSON(http.StatusNoContent, gin.H{})
-
-}
-
-// GetUsers gets a list of users
-func (uh userHandler) GetUsers(c *gin.Context) {
-	users, err := uh.userUsecase.GetUsers()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"errors": errModel.NewErrorResponse(err)})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"users": users})
-
+	constant.ResponseJson(c, "User deleted", http.StatusOK)
 }

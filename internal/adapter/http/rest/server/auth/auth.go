@@ -1,107 +1,98 @@
 package auth
 
 import (
-	// "encoding/json"
-	"errors"
+	"fmt"
+	"github.com/casbin/casbin/v2"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strings"
+	"template/internal/adapter/http/rest/server"
+	"template/internal/constant"
 	appErr "template/internal/constant/errors"
-
 	"template/internal/constant/model"
-	"template/internal/module/auth"
-
-	"github.com/casbin/casbin/v2"
-	"github.com/gin-gonic/gin"
+	"template/internal/module"
+	custCas "template/platform/casbin"
 )
 
-type AuthHandler interface {
-	Authorizer(e *casbin.Enforcer) gin.HandlerFunc
-	Login(c *gin.Context)
-
-}
 
 type authHandler struct {
-	authUseCase auth.UseCase
+	authUseCase module.LoginUseCase
+	casbinAuth  custCas.CasbinAuth
 }
 
-func NewAuthHandler(authUseCase auth.UseCase) AuthHandler {
+func NewAuthHandler(authUseCase module.LoginUseCase, perm custCas.CasbinAuth) server.AuthHandler {
 	return &authHandler{
 		authUseCase: authUseCase,
+		casbinAuth:  perm,
 	}
 }
+
 var actions = map[string]string{
-	"GET": 		"read",
-	"POST": 	"create",
-	"PUT":  	"update",
-	"DELETE": 	"delete",
-	"PATCH":    "update",
+	"GET":    "read",
+	"POST":   "create",
+	"PUT":    "update",
+	"DELETE": "delete",
+	"PATCH":  "update",
 }
+
 //Authorizer is a middleware for authorization
 func (n *authHandler) Authorizer(e *casbin.Enforcer) gin.HandlerFunc {
-	log.Println("authorizer")
 	return func(c *gin.Context) {
 		role := "anonymous"
 		token := ExtractToken(c.Request)
 		claims, _ := n.authUseCase.GetClaims(token)
-        if e!=nil{
-			log.Println("e is differenet from n")
-		}else{
-			log.Println("e  nill")
-			c.AbortWithStatus(http.StatusUnauthorized)
-
-		}
+		fmt.Println("claims ",claims)
 		if claims != nil {
-			log.Println("----claim")
-			// log.Println(json.MarshalIndent(claims,"","  "))
+			fmt.Println("claims ",claims)
 			role = claims.Role
-
 			c.Set("x-userid", claims.Subject)
 			c.Set("x-userrole", role)
-
 			if claims.CompanyID != "" {
 				c.Set("x-companyid", claims.CompanyID)
 			}
 		}
-		log.Printf("%v %v %v", role, c.Request.URL.Path, c.Request.Method)
 
-		e.LoadPolicy()
-		res, err := e.Enforce(role, c.Request.URL.Path, actions[c.Request.Method])
+		err := e.LoadPolicy()
 		if err != nil {
-			log.Println("Error enforcing the casbin rules", err)
-			c.AbortWithStatus(http.StatusUnauthorized)
+			log.Fatal("error ",err)
+		}
+		fmt.Println(role, c.Request.URL.Path, actions[c.Request.Method])
+		res, err := e.Enforce(role, c.Request.URL.Path, actions[c.Request.Method])
+		fmt.Println("error ",err)
+		if err != nil {
+			err := appErr.NewErrorResponse(appErr.ErrPermissionPermissionNotFound)
+			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
+			c.AbortWithStatus(appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
 			return
 		}
 		if res {
 			c.Next()
 		} else {
-			log.Println("No permission")
-			c.AbortWithStatus(http.StatusUnauthorized)
-
+			err := appErr.NewErrorResponse(appErr.ErrUnauthorizedClient)
+			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrUnauthorizedClient])
+			c.AbortWithStatus(appErr.StatusCodes[appErr.ErrUnauthorizedClient])
+			return
 		}
 
 	}
 }
-
 func (n authHandler) Login(c *gin.Context) {
 	authData := &model.User{}
-	err := c.BindJSON(authData)
+	err := c.Bind(authData)
 	if err != nil {
-		log.Println("Err binding", err)
-		c.JSON(http.StatusBadRequest, gin.H{"errors": appErr.NewErrorResponse(appErr.ErrUnknown)})
+		constant.ResponseJson(c, appErr.NewErrorResponse(appErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 		return
 	}
-	loginResponse, err := n.authUseCase.Login(authData.Phone, authData.Password)
+	ctx := c.Request.Context()
+	loginResponse, err := n.authUseCase.Login(ctx, authData.Phone, authData.Password)
+	fmt.Println("error login ",err)
 
 	if err != nil {
-		if errors.As(err, &appErr.ValErr{}) {
-			c.JSON(http.StatusBadRequest, gin.H{"errors": err})
-			return
-		}
-		c.JSON(http.StatusBadRequest, gin.H{"errors": appErr.NewErrorResponse(err)})
+		constant.ResponseJson(c, appErr.NewErrorResponse(err), http.StatusUnauthorized)
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"user": loginResponse})
+	constant.ResponseJson(c, loginResponse, http.StatusOK)
 }
 func ExtractToken(r *http.Request) string {
 	keys := r.URL.Query()

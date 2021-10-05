@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"template/internal/constant/errors"
 	"template/internal/constant/model"
 
 	"github.com/dgrijalva/jwt-go"
@@ -31,7 +32,7 @@ func (manager *JWTManager) Verify(accessToken string) (*model.UserClaims, error)
 		func(token *jwt.Token) (interface{}, error) {
 			_, ok := token.Method.(*jwt.SigningMethodHMAC)
 			if !ok {
-				return nil, fmt.Errorf("unexpected token signing method")
+				return nil, errors.ErrInvalidToken
 			}
 
 			return []byte(manager.secretKey), nil
@@ -39,12 +40,12 @@ func (manager *JWTManager) Verify(accessToken string) (*model.UserClaims, error)
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("invalid token: %w", err)
+		return nil, errors.ErrInvalidToken
 	}
 
 	claims, ok := token.Claims.(*model.UserClaims)
 	if !ok {
-		return nil, fmt.Errorf("invalid token claims")
+		return nil, errors.ErrInvalidAccessToken
 	}
 
 	return claims, nil

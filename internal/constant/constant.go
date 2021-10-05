@@ -1,12 +1,19 @@
 package constant
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"os"
-	"strconv"
-	"template/internal/constant/errors"
+	"strings"
+)
+
+const (
+	SuperAdmin   = "SUPER-ADMIN"
+	CompanyAdmin = "COMPANY-ADMIN"
+	CompanyClerk = "COMPANY-CLERK"
 )
 
 type SuccessData struct {
@@ -16,14 +23,21 @@ type SuccessData struct {
 
 func ResponseJson(c *gin.Context, responseData interface{}, statusCode int) {
 	c.JSON(statusCode, responseData)
+	return
 }
-func StructValidator(structName interface{}, validate *validator.Validate) *errors.ErrorModel {
-	err := validate.Struct(structName)
-	if err != nil {
-		return &errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrorUnableToBindJsonToStruct]),
-			ErrorDescription: errors.Descriptions[errors.ErrorUnableToBindJsonToStruct],
-			ErrorMessage:     errors.ErrorUnableToBindJsonToStruct.Error(),
+func StructValidator(structName interface{}, validate *validator.Validate, trans ut.Translator) error {
+	//st:=structName.(model.EmailNotification)
+	errV := validate.Struct(structName)
+	fmt.Println("v1-err ", errV)
+	if errV != nil {
+		errs := errV.(validator.ValidationErrors)
+		valErr := errs.Translate(trans)
+		fmt.Println("v err ", valErr)
+		for key, _ := range valErr {
+			value := strings.TrimSpace(valErr[key])
+			value += " " + os.Getenv("ErrSecretKey")
+			fmt.Println("error ", value)
+			return errors.New(value)
 		}
 	}
 	return nil
@@ -37,18 +51,11 @@ func ValidateVariable(parm interface{}, validate *validator.Validate) error {
 	return nil
 }
 func DbConnectionString() (string, error) {
-	os.Setenv("DB_HOST", "localhost")
-	os.Setenv("DB_PORT", "5432")
-	os.Setenv("DB_USER", "postgres")
-	os.Setenv("DB_PASS", "yideg2378")
-	os.Setenv("DB_NAME", "demo")
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASS")
 	dbname := os.Getenv("DB_NAME")
 	addr := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v", host, user, password, dbname, port)
-
 	return addr, nil
-
 }

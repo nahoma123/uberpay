@@ -1,38 +1,52 @@
 package sms
 
 import (
-	"fmt"
-	"net/http"
+	"context"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
+	storage "template/internal/adapter/storage/persistence"
 	"template/internal/constant"
-	"template/internal/constant/errors"
 	"template/internal/constant/model"
+	"template/internal/module"
+	"time"
 )
 
+
+//Service defines all necessary service for the domain sms
+type service struct {
+	smsPersist   storage.SmsPersistence
+	validate       *validator.Validate
+	trans          ut.Translator
+	contextTimeout time.Duration
+}
+
+//Initialize  creates a new object with UseCase type
+func Initialize(smsPersist storage.SmsPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.SmsUsecase {
+	return &service{
+		smsPersist: smsPersist,
+		validate:       validate,
+		trans:          trans,
+		contextTimeout: timeout,
+	}
+}
+
 //SendSmsMessage send sms message via phone numbers
-func (s service) SendSmsMessage(sms model.SMS) (*constant.SuccessData, *errors.ErrorModel) {
-	if sms.ApiGateWay == "" {
-		errorData := errors.NewErrorResponse(errors.ErrInvalidAPIKey)
-		return nil, &errorData
+func (s service) SendSmsMessage(c context.Context, sms model.SMS) (*model.SMS, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	errV := constant.StructValidator(sms, s.validate, s.trans)
+
+	if errV != nil {
+		return nil, errV
 	}
-	if sms.CallBackUrl == "" {
-		errorData := errors.NewErrorResponse(errors.ErrorInvalidCallBackUrl)
-		return nil, &errorData
-	}
-	newnotification, err := s.smsPersistance.SendSmsMessage(sms)
-	fmt.Println("err perst ", err)
-	if err != nil {
-		errorData := errors.NewErrorResponse(errors.ErrUnableToSendSmsMessage)
-		return nil, &errorData
-	}
-	return &constant.SuccessData{
-		Code: http.StatusOK,
-		Data: newnotification,
-	}, nil
+	return s.smsPersist.SendSmsMessage(ctx, sms)
 
 }
 
 //GetCountUnreadSmsMessages returns count of unread SMS notification message
-func (s service) GetCountUnreadSmsMessages() int64 {
-	count := s.smsPersistance.GetCountUnreadSmsMessages()
-	return count
+func (s service) GetCountUnreadSmsMessages(c context.Context) int64 {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	return s.smsPersist.GetCountUnreadSmsMessages(ctx)
+
 }

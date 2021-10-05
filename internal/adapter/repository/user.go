@@ -38,5 +38,5 @@ func (ur *userRepository) Encrypt(user *model.User) (err error) {
 // CheckPassword checks if the given password is natch with the hash saved in the database
 func (ur *userRepository) CheckPassword(password string, user *model.User) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	return err == nil, err
+	return err == nil, errors.ErrInvalidUserPhoneOrPassword
 }

@@ -1,21 +1,15 @@
 package errors
 
 import (
-	"strconv"
-
 	"github.com/go-playground/validator/v10"
+	"strconv"
 )
 
 type ErrorModel struct {
-	ErrorCode        string `json:"errorCode"`
+	ErrorCode        int    `json:"errorCode"`
 	ErrorMessage     string `json:"errorMessage"`
 	ErrorDescription string `json:"errorDescription"`
 }
-
-// type ValErrorModel struct {
-// 	ErrorCode string            `json:"errorCode"`
-// 	ValError  map[string]string `json:"validationErrors"`
-// }
 
 type ValErr map[string]string
 
@@ -27,7 +21,7 @@ func NewErrorResponse(err error) ErrorModel {
 	return ErrorModel{
 		ErrorMessage:     err.Error(),
 		ErrorDescription: Descriptions[err],
-		ErrorCode:        strconv.Itoa(ErrCodes[err]),
+		ErrorCode:        ErrCodes[err],
 	}
 }
 
@@ -42,4 +36,12 @@ func NewValErrResponse(err validator.ValidationErrorsTranslations) ValErr {
 
 func GetStatusCode(err error) int {
 	return StatusCodes[err]
+}
+func ConvertionError() ErrorModel {
+	errValue := ErrorModel{
+		ErrorCode:        ErrCodes[ErrorUnableToConvert],
+		ErrorDescription: Descriptions[ErrorUnableToConvert],
+		ErrorMessage:     ErrorUnableToConvert.Error(),
+	}
+	return errValue
 }
