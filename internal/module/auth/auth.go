@@ -1,58 +1,55 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"log"
+	"golang.org/x/crypto/bcrypt"
 	"template/internal/adapter/storage/persistence/user"
+	"template/internal/constant/errors"
 	"template/internal/constant/model"
+	"template/internal/module"
+	"time"
 )
 
-type UseCase interface {
-	Login(username, password string) (*model.LoginResponse, error)
-	GetClaims(token string) (*model.UserClaims, error)
-}
 
 type service struct {
-	userPersistence user.UserStorage
+	userPersistence user.UserPersistence
 	jwtManager      JWTManager
+	contextTimeout  time.Duration
 }
 
-func Initialize(
-	userPersistence user.UserStorage,
-	jwtManager JWTManager,
-) UseCase {
+func Initialize(userPersistence user.UserPersistence, jwtManager JWTManager, timeout time.Duration) module.LoginUseCase {
 	return &service{
 		userPersistence: userPersistence,
 		jwtManager:      jwtManager,
+		contextTimeout:  timeout,
 	}
 }
 func (s service) GetClaims(token string) (*model.UserClaims, error) {
 	claims, err := s.jwtManager.Verify(token)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrInvalidToken
 	}
-	return claims, err
+	return claims, nil
 }
 
-func (s service) Login(phoneNumber, password string) (*model.LoginResponse, error) {
-	// if phoneNumber == "" || password == "" {
-
-	// 	return nil,
-	// }
-
-	usr, err := s.userPersistence.User(model.User{Phone: phoneNumber})
+func (s service) Login(c context.Context, phoneNumber, password string) (*model.LoginResponse, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	u:=model.User{Phone: phoneNumber}
+	usr, err := s.userPersistence.UserByID(ctx,u )
+	u.Password=password
 	if err != nil {
-		log.Println("53--", err)
 		return nil, err
-
 	}
-	//hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 12)
-	//
-	//err = bcrypt.CompareHashAndPassword([]byte(usr.Password), []byte(password))
-	//if err != nil {
-	//	return nil, err
-	//}
+	err = bcrypt.CompareHashAndPassword([]byte(usr.Password), []byte(password))
+	if err!=nil {
+		return nil, errors.ErrInvalidUserPhoneOrPassword
+	}
+	if usr.RoleName == "" {
+		return nil, errors.ErrRequireApproval
+	}
 	claims := &model.UserClaims{
 		StandardClaims: jwt.StandardClaims{
 			Subject: usr.ID.String(),
@@ -60,19 +57,15 @@ func (s service) Login(phoneNumber, password string) (*model.LoginResponse, erro
 		Phone: phoneNumber,
 		Role:  usr.RoleName,
 	}
-	if usr.RoleName == "COMPANY-USER" {
-		// companyID, _ := s.userPersistence.GetUserCompany(usr.ID)
-		companyRole, err := s.userPersistence.UserCompanyRole(model.UserCompanyRole{UserID: usr.ID})
-
-		if err != nil {
-			return nil, err
-		}
-		claims.CompanyID = companyRole.CompanyID.String()
-	}
-
-	token, err := s.jwtManager.Generate(claims)
+	companyUser, err := s.userPersistence.GetCompanyUserByID(ctx, usr.ID)
+	fmt.Println("error ",err)
 	if err != nil {
 		return nil, err
+	}
+	claims.CompanyID = companyUser.CompanyID.String()
+	token, err := s.jwtManager.Generate(claims)
+	if err != nil {
+		return nil, errors.ErrGenerateToken
 	}
 	return &model.LoginResponse{
 		Token: token,

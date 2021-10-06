@@ -1,36 +1,31 @@
 package publisher
 
 import (
+	"fmt"
 	"github.com/appleboy/go-fcm"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/satori/go.uuid"
 	"net/http"
 	"os"
-	"strconv"
+	"strings"
+	"template/internal/adapter/http/rest/server"
 	"template/internal/constant"
 	"template/internal/constant/errors"
 	"template/internal/constant/model"
-	"template/internal/module/notification/publisher"
+	"template/internal/module"
 )
 
-//NotificationHandler contains all handler interfaces
-type NotificationHandler interface {
-	MiddleWareValidateNotification(c *gin.Context)
-	GetNotifications(c *gin.Context)
-	PushNotification(c *gin.Context)
-	DeleteNotification(c *gin.Context)
-	GetCountUnreadPushNotificationMessages(c *gin.Context)
-}
+
 
 //notificationHandler implements notification servicea and goalang validator object
 type notificationHandler struct {
-	notificationUseCase publisher.Usecase
+	notificationUseCase module.NotificationUsecase
 	validate            *validator.Validate
 }
 
 //NewNotificationHandler  initializes notification services and golang validator
-func NewNotificationHandler(notfCase publisher.Usecase, valid *validator.Validate) NotificationHandler {
+func NewNotificationHandler(notfCase module.NotificationUsecase, valid *validator.Validate) server.NotificationHandler {
 	return &notificationHandler{
 		notificationUseCase: notfCase,
 		validate:            valid,
@@ -38,23 +33,19 @@ func NewNotificationHandler(notfCase publisher.Usecase, valid *validator.Validat
 }
 
 //MiddleWareValidateNotification binds pushed notification data as json
-func (n notificationHandler) MiddleWareValidateNotification(c *gin.Context) {
+func (n notificationHandler) NotificationMiddleWare(c *gin.Context) {
 	notification := model.PushedNotification{}
 	err := c.Bind(&notification)
-	notification.Token=os.Getenv("TOKEN")
-	notification.ApiKey=os.Getenv("APIKEY")
+	notification.ApiKey = os.Getenv("APIKEY")
+	notification.Token = os.Getenv("TOKEN")
+	fmt.Println("error middle ware  ", err)
 	if err != nil {
 		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrInvalidRequest]),
+			ErrorCode:        errors.ErrCodes[errors.ErrInvalidRequest],
 			ErrorDescription: errors.Descriptions[errors.ErrInvalidRequest],
 			ErrorMessage:     errors.ErrInvalidRequest.Error(),
 		}
 		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidRequest])
-		return
-	}
-	errV := constant.StructValidator(notification, n.validate)
-	if errV != nil {
-		constant.ResponseJson(c, errV, errors.StatusCodes[errors.ErrorUnableToBindJsonToStruct])
 		return
 	}
 	c.Set("x-notification", notification)
@@ -63,27 +54,21 @@ func (n notificationHandler) MiddleWareValidateNotification(c *gin.Context) {
 
 //GetNotifications return all notification
 func (n notificationHandler) GetNotifications(c *gin.Context) {
-	successData, errData := n.notificationUseCase.Notifications()
+	ctx := c.Request.Context()
+	notification, errData := n.notificationUseCase.Notifications(ctx)
 	if errData != nil {
-		code, err := strconv.Atoi(errData.ErrorCode)
-		if err != nil {
-			errValue := errors.ErrorModel{
-				ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrorUnableToConvert]),
-				ErrorDescription: errors.Descriptions[errors.ErrorUnableToConvert],
-				ErrorMessage:     errors.ErrorUnableToConvert.Error(),
-			}
-			constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrorUnableToConvert])
-			return
-		}
-		constant.ResponseJson(c, *errData, code)
+		err := errors.NewErrorResponse(errData)
+		code := err.ErrorCode
+		constant.ResponseJson(c, err, code)
 		return
 	}
-	constant.ResponseJson(c, *successData, successData.Code)
-
+	constant.ResponseJson(c, notification, http.StatusOK)
+	return
 }
 
 //PushNotification pushes message via valid device token
 func (n notificationHandler) PushNotification(c *gin.Context) {
+	ctx := c.Request.Context()
 	notification := c.MustGet("x-notification").(model.PushedNotification)
 	// TODO:01 push notification code put here
 	data := notification
@@ -93,77 +78,64 @@ func (n notificationHandler) PushNotification(c *gin.Context) {
 		Notification: &fcm.Notification{Title: data.Title, Body: data.Body},
 	}
 	//create clients from the fcm instance of api key
-	client, clientErr := NewClientNotification(msg)
+	_, clientErr := NewClientNotification(msg)
 	if clientErr != nil {
-		code, err := strconv.Atoi(clientErr.ErrorCode)
-		if err != nil {
+		code := http.StatusUnauthorized
+		constant.ResponseJson(c, clientErr, code)
+		return
+	}
+
+	// TODO:02 store push notification here
+	Data, err := n.notificationUseCase.PushSingleNotification(ctx, notification)
+	if err != nil {
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
 			errValue := errors.ErrorModel{
-				ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrorUnableToConvert]),
-				ErrorDescription: errors.Descriptions[errors.ErrorUnableToConvert],
-				ErrorMessage:     errors.ErrorUnableToConvert.Error(),
+				ErrorCode:        errors.ErrCodes[errors.ErrInvalidField],
+				ErrorDescription: errors.Descriptions[errors.ErrInvalidField],
+				ErrorMessage:     e,
 			}
-			constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrorUnableToConvert])
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		constant.ResponseJson(c, *clientErr, code)
+		err := errors.NewErrorResponse(err)
+		constant.ResponseJson(c, err, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, *client, client.Success)
-	// TODO:02 store push notification here
-	Data, err := n.notificationUseCase.PushSingleNotification(notification)
-	if err != nil {
-		code, _ := strconv.Atoi(err.ErrorCode)
-		constant.ResponseJson(c, *err, code)
-		return
-	}
-	constant.ResponseJson(c, *Data, Data.Code)
+	constant.ResponseJson(c, *Data, http.StatusOK)
+	return
 }
 
 //DeleteNotification removes  specific notification message identified by id notification
 func (n notificationHandler) DeleteNotification(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("id")
 	u_id, err := uuid.FromString(id)
 	if err != nil {
-		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrorUnableToConvert]),
-			ErrorDescription: errors.Descriptions[errors.ErrorUnableToConvert],
-			ErrorMessage:     errors.ErrorUnableToConvert.Error(),
-		}
-		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrorUnableToConvert])
+		errValue := errors.ConvertionError()
+		constant.ResponseJson(c, errValue, http.StatusBadRequest)
 		return
 	}
-
-	err = constant.ValidateVariable(u_id, n.validate)
+	err = n.notificationUseCase.DeleteNotification(ctx, model.PushedNotification{ID: u_id})
 	if err != nil {
-		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrInvalidVariable]),
-			ErrorDescription: errors.Descriptions[errors.ErrInvalidVariable],
-			ErrorMessage:     errors.ErrInvalidVariable.Error(),
-		}
-		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidVariable])
-		return
-	}
-
-	successData, errData := n.notificationUseCase.DeleteNotification(model.PushedNotification{ID: u_id})
-	if errData != nil {
-		code, err := strconv.Atoi(errData.ErrorCode)
+		e := errors.NewErrorResponse(err)
+		code := e.ErrorCode
 		if err != nil {
-			errValue := errors.ErrorModel{
-				ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrorUnableToConvert]),
-				ErrorDescription: errors.Descriptions[errors.ErrorUnableToConvert],
-				ErrorMessage:     errors.ErrorUnableToConvert.Error(),
-			}
-			constant.ResponseJson(c, errValue, code)
+			errValue := errors.ConvertionError()
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
+		constant.ResponseJson(c, e, code)
 		return
 	}
-	constant.ResponseJson(c, *successData, successData.Code)
+	constant.ResponseJson(c, nil, http.StatusOK)
+	return
 }
 func (n notificationHandler) GetCountUnreadPushNotificationMessages(c *gin.Context) {
-	count := n.notificationUseCase.GetCountUnreadPushNotificationMessages()
+	ctx := c.Request.Context()
+	count := n.notificationUseCase.GetCountUnreadPushNotificationMessages(ctx)
 	constant.ResponseJson(c, map[string]interface{}{"count": count}, http.StatusOK)
-
+	return
 }
 
 //NewClientNotification send push notification using firebase cloudy message apikey and  device  valid token
@@ -172,7 +144,7 @@ func NewClientNotification(msg *fcm.Message) (*fcm.Response, *errors.ErrorModel)
 	client, err := fcm.NewClient(msg.Data["api_key"].(string))
 	if err != nil {
 		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.ErrCodes[errors.ErrInvalidClient]),
+			ErrorCode:        errors.ErrCodes[errors.ErrInvalidClient],
 			ErrorDescription: errors.Descriptions[errors.ErrInvalidClient],
 			ErrorMessage:     errors.ErrInvalidClient.Error(),
 		}
@@ -182,7 +154,7 @@ func NewClientNotification(msg *fcm.Message) (*fcm.Response, *errors.ErrorModel)
 	fcmResponse, err := client.Send(msg)
 	if err != nil {
 		errValue := errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.ErrCodes[errors.ErrUnauthorizedClient]),
+			ErrorCode:        errors.ErrCodes[errors.ErrUnauthorizedClient],
 			ErrorDescription: errors.Descriptions[errors.ErrUnauthorizedClient],
 			ErrorMessage:     errors.ErrUnauthorizedClient.Error(),
 		}

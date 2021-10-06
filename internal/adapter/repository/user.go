@@ -23,7 +23,6 @@ func UserInit() UserRepository {
 
 // Encrypt encrypts a users password
 func (ur *userRepository) Encrypt(user *model.User) (err error) {
-
 	if user.Password != "" {
 		bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 		if err != nil {
@@ -38,5 +37,5 @@ func (ur *userRepository) Encrypt(user *model.User) (err error) {
 // CheckPassword checks if the given password is natch with the hash saved in the database
 func (ur *userRepository) CheckPassword(password string, user *model.User) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	return err == nil, err
+	return err == nil, errors.ErrInvalidUserPhoneOrPassword
 }

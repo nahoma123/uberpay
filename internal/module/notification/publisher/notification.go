@@ -1,76 +1,74 @@
 package publisher
 
 import (
+	"context"
 	"fmt"
-	"net/http"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
+	storage "template/internal/adapter/storage/persistence"
 	"template/internal/constant"
-	"template/internal/constant/errors"
 	"template/internal/constant/model"
+	"template/internal/module"
+	"time"
 )
+//Service defines all necessary service for the domain sms
+type service struct {
+	notifyPersist   storage.NotificationPersistence
+	validate       *validator.Validate
+	trans          ut.Translator
+	contextTimeout time.Duration
+}
 
-//Notifications returns all pushed notifications
-func (s service) Notifications() (*constant.SuccessData, *errors.ErrorModel) {
-	data, err := s.notificationPersistance.Notifications()
-	if err != nil {
-		errorData := errors.NewErrorResponse(err)
-		return nil, &errorData
+//Initialize  creates a new object with UseCase type
+func Initialize(notp storage.NotificationPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.NotificationUsecase {
+	return &service{
+		notifyPersist: notp,
+		validate:       validate,
+		trans:          trans,
+		contextTimeout: timeout,
 	}
-	return &constant.SuccessData{
-		Code: http.StatusOK,
-		Data: data,
-	}, nil
+}
+//Notifications returns all pushed notifications
+func (s service) Notifications(c context.Context) ([]model.PushedNotification, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	data, err := s.notifyPersist.Notifications(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 
 }
 
 //PushSingleNotification creates a notification and send via valid token and api key
-func (s service) PushSingleNotification(notification model.PushedNotification) (*constant.SuccessData, *errors.ErrorModel) {
+func (s service) PushSingleNotification(c context.Context, notification model.PushedNotification) (*model.PushedNotification, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	errV := constant.StructValidator(notification, s.validate, s.trans)
+	fmt.Println("val error ", errV)
+	if errV != nil {
+		return nil, errV
+	}
+	return s.notifyPersist.PushSingleNotification(ctx, notification)
 
-	if notification.ApiKey == "" {
-		errorData := errors.NewErrorResponse(errors.ErrInvalidAPIKey)
-		return nil, &errorData
-	}
-	if notification.Token == "" {
-		errorData := errors.NewErrorResponse(errors.ErrInvalidToken)
-		return nil, &errorData
-	}
-	_, err := s.notificationPersistance.NotificationByID(notification)
-	if err != nil {
-		errorData := errors.NewErrorResponse(errors.ErrDataAlreayExist)
-		return nil, &errorData
-	}
-	newnotification, err := s.notificationPersistance.PushSingleNotification(notification)
-	fmt.Println("error ", err)
-	if err != nil {
-		errorData := errors.NewErrorResponse(err)
-		return nil, &errorData
-	}
-	return &constant.SuccessData{
-		Code: http.StatusOK,
-		Data: newnotification,
-	}, nil
 }
 
 //DeleteNotification removes a pushed notification from the resource
-func (s service) DeleteNotification(param model.PushedNotification) (*constant.SuccessData, *errors.ErrorModel) {
-	_, err := s.notificationPersistance.NotificationByID(param)
+func (s service) DeleteNotification(c context.Context, param model.PushedNotification) error {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	_, err := s.notifyPersist.NotificationByID(ctx, param)
 	if err != nil {
-		errorData := errors.NewErrorResponse(err)
-		return nil, &errorData
+		return err
 	}
-	err = s.notificationPersistance.DeleteNotification(param)
-	if err != nil {
-		errorData := errors.NewErrorResponse(err)
-		return nil, &errorData
-	}
-	return &constant.SuccessData{
-		Code: http.StatusOK,
-		Data: "PushedNotification Deleted",
-	}, nil
+	return s.notifyPersist.DeleteNotification(ctx, param)
 
 }
 
 //GetCountUnreadPushNotificationMessages returns count of unread pushed notification message
-func (s service) GetCountUnreadPushNotificationMessages() int64 {
-	count := s.notificationPersistance.GetCountUnreadPushNotificationMessages()
-	return count
+func (s service) GetCountUnreadPushNotificationMessages(c context.Context) int64 {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	return s.notifyPersist.GetCountUnreadPushNotificationMessages(ctx)
+
 }

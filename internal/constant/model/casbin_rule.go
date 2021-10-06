@@ -1,12 +1,12 @@
 package model
 
 type CasbinRule struct {
-	ID    uint   `gorm:"primaryKey;autoIncrement"`
-	Ptype string `gorm:"size:512;uniqueIndex:unique_index"`
-	V0    string `gorm:"size:512;uniqueIndex:unique_index"`
-	V1    string `gorm:"size:512;uniqueIndex:unique_index"`
-	V2    string `gorm:"size:512;uniqueIndex:unique_index"`
-	V3    string `gorm:"size:512;uniqueIndex:unique_index"`
-	V4    string `gorm:"size:512;uniqueIndex:unique_index"`
-	V5    string `gorm:"size:512;uniqueIndex:unique_index"`
+	ID    uint      `json:"id" gorm:"primaryKey;autoIncrement;"`
+	Ptype string    `json:"ptype,omitempty" gorm:"size:512;"    validate:"required" `
+	V0    string    `json:"v_0,omitempty"   gorm:"size:512;"    validate:"required"`
+	V1    string    `json:"v_1,omitempty"   gorm:"size:512;"    validate:"required"`
+	V2    string    `json:"v_2,omitempty"   gorm:"size:512;"    validate:"required"`
+	V3    string    `json:"v_3,omitempty"   gorm:"size:512;"    validate:"required"`
+	V4    string    ` json:"v_4,omitempty"  gorm:"size:512;"    validate:"required"`
+	V5    string    `json:"v_5,omitempty"   gorm:"size:512;"    validate:"required"`
 }

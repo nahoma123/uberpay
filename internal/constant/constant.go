@@ -1,47 +1,40 @@
 package constant
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"os"
-	"strconv"
-	"template/internal/constant/errors"
+	"strings"
 )
 
-type SuccessData struct {
-	Code int
-	Data interface{}
-}
-
-//ResponseJson returns json data
+const (
+	SuperAdmin   = "SUPER-ADMIN"
+	CompanyAdmin = "COMPANY-ADMIN"
+	CompanyClerk = "COMPANY-CLERK"
+)
+//ResponseJson creates new json object
 func ResponseJson(c *gin.Context, responseData interface{}, statusCode int) {
 	c.JSON(statusCode, responseData)
+	return
 }
-
-//StructValidator validates  interfaces
-func StructValidator(structName interface{}, validate *validator.Validate) *errors.ErrorModel {
-	err := validate.Struct(structName)
-	if err != nil {
-		return &errors.ErrorModel{
-			ErrorCode:        strconv.Itoa(errors.StatusCodes[errors.ErrorUnableToBindJsonToStruct]),
-			ErrorDescription: errors.Descriptions[errors.ErrorUnableToBindJsonToStruct],
-			ErrorMessage:     errors.ErrorUnableToBindJsonToStruct.Error(),
+//StructValidator validates specific struct
+func StructValidator(structName interface{}, validate *validator.Validate, trans ut.Translator) error {
+	errV := validate.Struct(structName)
+	if errV != nil {
+		errs := errV.(validator.ValidationErrors)
+		valErr := errs.Translate(trans)
+		for key, _ := range valErr {
+			value := strings.TrimSpace(valErr[key])
+			value += " " + os.Getenv("ErrSecretKey")
+			return errors.New(value)
 		}
 	}
 	return nil
 }
-
-//ValidateVariable validates variables
-func ValidateVariable(parm interface{}, validate *validator.Validate) error {
-	errs := validate.Var(parm, "required")
-	if errs != nil {
-		return errs
-	}
-	return nil
-}
-
-//DbConnectionString returns  connection string from the env file using os package
+//DbConnectionString connction string finder from the .env file
 func DbConnectionString() (string, error) {
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
@@ -50,5 +43,4 @@ func DbConnectionString() (string, error) {
 	dbname := os.Getenv("DB_NAME")
 	addr := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v", host, user, password, dbname, port)
 	return addr, nil
-
 }
