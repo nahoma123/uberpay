@@ -35,6 +35,8 @@ type PolicyHandler interface {
 	RemovePolicy(c *gin.Context)
 	Policies(c *gin.Context)
 	UpdatePolicy(c *gin.Context)
+	GetCompanyPolicyByID(c *gin.Context)
+	GetAllCompaniesPolicy(c *gin.Context)
 }
 //NotificationHandler contains all handler interfaces
 type NotificationHandler interface {
@@ -57,4 +59,5 @@ type CompanyHandler interface {
 	UpdateCompany(c *gin.Context)
 	DeleteCompany(c *gin.Context)
 	CompanyMiddleWare(c *gin.Context)
+
 }

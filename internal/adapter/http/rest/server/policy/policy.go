@@ -2,7 +2,10 @@ package policy
 
 import (
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"net/http"
+	"os"
+	"strings"
 	"template/internal/adapter/http/rest/server"
 	"template/internal/constant"
 	custErr "template/internal/constant/errors"
@@ -22,7 +25,7 @@ func PolicyInit(casbinAuth casbin.CasbinAuth) server.PolicyHandler {
 		casbinAuth,
 	}
 }
-func (n policyHandler) PolicyMiddleWare(c *gin.Context) {
+func (ph policyHandler) PolicyMiddleWare(c *gin.Context) {
 	permX := model.Policy{}
 	err := c.Bind(&permX)
 	if err != nil {
@@ -39,33 +42,37 @@ func (n policyHandler) PolicyMiddleWare(c *gin.Context) {
 }
 
 //Policies gets a list of policies
-func (uh policyHandler) Policies(c *gin.Context) {
+func (ph policyHandler) Policies(c *gin.Context) {
 	ctx := c.Request.Context()
-	permissions := uh.casbinAuth.Policies(ctx)
+	permissions := ph.casbinAuth.Policies(ctx)
 	constant.ResponseJson(c, permissions, http.StatusOK)
 }
-func (uh policyHandler) StorePolicy(c *gin.Context) {
+func (ph policyHandler) StorePolicy(c *gin.Context) {
 	ctx := c.Request.Context()
 	addP := c.MustGet("x-policy").(model.Policy)
-	err := uh.casbinAuth.AddPolicy(ctx, addP)
-
+	err := ph.casbinAuth.AddPolicy(ctx, addP)
 	if err != nil {
-		n := custErr.ErrorModel{
-			ErrorCode:        custErr.ErrCodes[custErr.ErrUnableToSave],
-			ErrorMessage:     custErr.Descriptions[custErr.ErrUnableToSave],
-			ErrorDescription: err.Error(),
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
+			errValue := custErr.ErrorModel{
+				ErrorCode:        custErr.ErrCodes[custErr.ErrInvalidField],
+				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
+				ErrorMessage:     e,
+			}
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			return
 		}
-		constant.ResponseJson(c, n, http.StatusBadRequest)
+		constant.ResponseJson(c, custErr.NewErrorResponse(err), custErr.ErrCodes[err])
 		return
 	}
 	constant.ResponseJson(c, addP, http.StatusOK)
 }
 
 //RemovePolicy removes policy
-func (uh policyHandler) RemovePolicy(c *gin.Context) {
+func (ph policyHandler) RemovePolicy(c *gin.Context) {
 	ctx := c.Request.Context()
 	addP := c.MustGet("x-policy").(model.Policy)
-	err := uh.casbinAuth.RemovePolicy(ctx, addP)
+	err := ph.casbinAuth.RemovePolicy(ctx, addP)
 	if err != nil {
 		n := custErr.ErrorModel{
 			ErrorCode:        custErr.ErrCodes[custErr.ErrUnableToDelete],
@@ -79,7 +86,7 @@ func (uh policyHandler) RemovePolicy(c *gin.Context) {
 }
 
 //UpdatePolicy updates policies new by old
-func (uh policyHandler) UpdatePolicy(c *gin.Context) {
+func (ph policyHandler) UpdatePolicy(c *gin.Context) {
 	ctx := c.Request.Context()
 	permU := model.PolicyUpdate{}
 	err := c.Bind(&permU)
@@ -87,8 +94,18 @@ func (uh policyHandler) UpdatePolicy(c *gin.Context) {
 		constant.ResponseJson(c, custErr.NewErrorResponse(err), http.StatusBadRequest)
 		return
 	}
-	err = uh.casbinAuth.UpdatePolicy(ctx, permU)
+	err = ph.casbinAuth.UpdatePolicy(ctx, permU)
 	if err != nil {
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
+			errValue := custErr.ErrorModel{
+				ErrorCode:        custErr.ErrCodes[custErr.ErrInvalidField],
+				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
+				ErrorMessage:     e,
+			}
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			return
+		}
 		nrr := custErr.ErrorModel{
 			ErrorCode:        custErr.ErrCodes[custErr.ErrUnableToSave],
 			ErrorMessage:     "Update failed",
@@ -98,4 +115,22 @@ func (uh policyHandler) UpdatePolicy(c *gin.Context) {
 		return
 	}
 	constant.ResponseJson(c, "Update successful", http.StatusOK)
+}
+//GetCompanyPolicyByID gets all company policy identified by id
+func (ph policyHandler) GetCompanyPolicyByID(c *gin.Context) {
+	ctx := c.Request.Context()
+	id, err := uuid.FromString(c.Param("company-id"))
+	if err != nil {
+		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+		return
+	}
+	policies:=ph.casbinAuth.GetCompanyPolicyByID(ctx,id.String())
+	constant.ResponseJson(c, policies, http.StatusOK)
+
+}
+//GetAllCompaniesPolicy gets all company policy
+func (ph policyHandler) GetAllCompaniesPolicy(c *gin.Context) {
+	ctx:=c.Request.Context()
+	policies:=ph.casbinAuth.GetAllCompaniesPolicy(ctx)
+	constant.ResponseJson(c, policies, http.StatusOK)
 }

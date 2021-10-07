@@ -11,6 +11,7 @@ insert  into casbin_rule values
                                  (9,'p','SUPER-ADMIN | COMPANY-ADMIN','/v1/companies/:company-id/users/:user-id','delete','c11f8819-afe6-4367-bd8f-4d5adb553433'),
                                  (10,'p','SUPER-ADMIN | COMPANY-ADMIN','/v1/companies/:company-id/add-users','create','c11f8819-afe6-4367-bd8f-4d5adb553433'),
 
+
                                  (11,'p','SUPER-ADMIN','/v1/companies','create','*'),
                                  (12,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/companies','read','*'),
                                  (13,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/companies/:company-id','read','*'),
@@ -27,6 +28,9 @@ insert  into casbin_rule values
                                  (23,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/notifications/email','create','*'),
                                  (24,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/notifications/unread/email','read','*'),
                                  (25,'p','SUPER-ADMIN','/v1/policies','create','*'),
-                                 (26,'p','SUPER-ADMIN | COMPANY-ADMIN','/v1/policies','read','*'),
-                                 (27,'p','SUPER-ADMIN | COMPANY-ADMIN','/v1/policies','update','*'),
-                                 (28,'p','SUPER-ADMIN | COMPANY-ADMIN','/v1/policies','delete','*');
+                                 (26,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/policies','read','*'),
+                                 (27,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/policies','update','*'),
+                                 (28,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/policies','delete','*'),
+                                 (29,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/companies/policies','read','c11f8819-afe6-4367-bd8f-4d5adb553433'),
+                                 (30,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/companies/:company-id/policies','read','c11f8819-afe6-4367-bd8f-4d5adb553433');
+;

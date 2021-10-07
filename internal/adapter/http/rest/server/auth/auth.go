@@ -42,9 +42,7 @@ func (n *authHandler) Authorizer(e *casbin.Enforcer) gin.HandlerFunc {
 		role := "anonymous"
 		token := ExtractToken(c.Request)
 		claims, _ := n.authUseCase.GetClaims(token)
-		fmt.Println("claims ",claims)
 		if claims != nil {
-			fmt.Println("claims ",claims)
 			role = claims.Role
 			c.Set("x-userid", claims.Subject)
 			c.Set("x-userrole", role)
@@ -56,15 +54,15 @@ func (n *authHandler) Authorizer(e *casbin.Enforcer) gin.HandlerFunc {
 		if err != nil {
 			log.Fatal("error ",err)
 		}
-		//fmt.Println("policy ",e.GetPolicy())
 		var c_id string
-		if  claims==nil {
+		if  claims.CompanyID == ""{
 			c_id="*"
 		}else {
 			c_id=strings.TrimSpace(claims.CompanyID)
 		}
-		fmt.Println(role, c.Request.URL.Path, actions[c.Request.Method],c_id)
+
 		res, err := e.Enforce(role, c.Request.URL.Path, actions[c.Request.Method],c_id)
+		fmt.Println("enforce error ",err,"res ",res)
 		if err != nil {
 			err := appErr.NewErrorResponse(appErr.ErrPermissionPermissionNotFound)
 			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
@@ -83,16 +81,14 @@ func (n *authHandler) Authorizer(e *casbin.Enforcer) gin.HandlerFunc {
 	}
 }
 func (n authHandler) Login(c *gin.Context) {
+	ctx := c.Request.Context()
 	authData := &model.User{}
 	err := c.Bind(authData)
 	if err != nil {
 		constant.ResponseJson(c, appErr.NewErrorResponse(appErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 		return
 	}
-	ctx := c.Request.Context()
 	loginResponse, err := n.authUseCase.Login(ctx, authData.Phone, authData.Password)
-	fmt.Println("error login ",err)
-
 	if err != nil {
 		constant.ResponseJson(c, appErr.NewErrorResponse(err), http.StatusUnauthorized)
 		return

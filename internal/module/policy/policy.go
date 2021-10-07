@@ -6,10 +6,8 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	uuid "github.com/satori/go.uuid"
-	"strings"
 	"template/internal/adapter/storage/persistence"
 	"template/internal/constant"
-	"template/internal/constant/errors"
 	"template/internal/constant/model"
 	"template/internal/module"
 	"time"
@@ -23,7 +21,7 @@ type service struct {
 	contextTimeout  time.Duration
 }
 
-func PermissionsInitialize(permPersistence storage.PermissionPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.PolicyUseCase {
+func PolicyInitialize(permPersistence storage.PermissionPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.PolicyUseCase {
 	return &service{
 		permPersistence: permPersistence,
 		trans:           trans,
@@ -31,42 +29,47 @@ func PermissionsInitialize(permPersistence storage.PermissionPersistence, valida
 		contextTimeout:  timeout,
 	}
 }
-func (s service) CompanyPolicy(c context.Context, u_id uuid.UUID) (*model.CasbinRule, error) {
+func (s service) CompanyPolicy(c context.Context, u_id uuid.UUID) ([]model.Policy, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	permissions, err := s.permPersistence.Policies(ctx)
+	policies :=[]model.Policy{}
+	AllPolicy, err := s.permPersistence.Policies(ctx)
 	if err != nil {
 		return nil, err
 	}
-	for _, permission := range permissions {
-		url_path_array := strings.Split(permission.V1, "/")
-		c_id, err := uuid.FromString(url_path_array[2])
-		if err != nil {
-			continue
+
+	for _, policy := range AllPolicy {
+		p:=model.Policy{}
+		if policy.V3 == u_id.String() {
+			p.Subject=policy.V0
+			p.Object=policy.V1
+			p.Action=policy.V2
+			p.CompanyID=policy.V3
 		}
-		if c_id == u_id {
-			return &permission, nil
-		}
+		policies=append(policies,p)
 	}
-	return nil, errors.ErrRecordNotFound
+	return policies, nil
 }
-func (s service) CompanyPolicies(c context.Context) ([]model.CasbinRule, error) {
+func (s service) CompanyPolicies(c context.Context) ([]model.Policy, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	cr := []model.CasbinRule{}
-	permissions, err := s.permPersistence.Policies(ctx)
+	policies :=[]model.Policy{}
+	AllPolicy, err := s.permPersistence.Policies(ctx)
 	if err != nil {
 		return nil, err
 	}
-	for _, permission := range permissions {
-		url_path_array := strings.Split(permission.V1, "/")
-		_, err = uuid.FromString(url_path_array[2])
-		if err != nil {
-			continue
+
+	for _, policy := range AllPolicy {
+		p:=model.Policy{}
+		if policy.V3 !="*" {
+			p.Subject=policy.V0
+			p.Object=policy.V1
+			p.Action=policy.V2
+			p.CompanyID=policy.V3
 		}
-		cr = append(cr, permission)
+		policies=append(policies,p)
 	}
-	return cr, nil
+	return policies, nil
 }
 func (s service) Policies(c context.Context) ([]model.CasbinRule, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)

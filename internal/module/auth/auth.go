@@ -12,7 +12,6 @@ import (
 	"time"
 )
 
-
 type service struct {
 	userPersistence user.UserPersistence
 	jwtManager      JWTManager
@@ -37,14 +36,14 @@ func (s service) GetClaims(token string) (*model.UserClaims, error) {
 func (s service) Login(c context.Context, phoneNumber, password string) (*model.LoginResponse, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	u:=model.User{Phone: phoneNumber}
-	usr, err := s.userPersistence.UserByID(ctx,u )
-	u.Password=password
+	u := model.User{Phone: phoneNumber}
+	usr, err := s.userPersistence.UserByID(ctx, u)
+	u.Password = password
 	if err != nil {
 		return nil, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(usr.Password), []byte(password))
-	if err!=nil {
+	if err != nil {
 		return nil, errors.ErrInvalidUserPhoneOrPassword
 	}
 	if usr.RoleName == "" {
@@ -58,7 +57,7 @@ func (s service) Login(c context.Context, phoneNumber, password string) (*model.
 		Role:  usr.RoleName,
 	}
 	companyUser, err := s.userPersistence.GetCompanyUserByID(ctx, usr.ID)
-	fmt.Println("error ",err)
+	fmt.Println("error ", err)
 	if err != nil {
 		return nil, err
 	}

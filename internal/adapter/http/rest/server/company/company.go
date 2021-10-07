@@ -14,13 +14,10 @@ import (
 	"template/internal/module"
 )
 
-
-
 // companyHandler defines all the things necessary for company handlers
 type companyHandler struct {
 	companyUsecase module.CompanyUsecase
 }
-
 //CompanyInit initializes a company handler for the domin company
 func CompanyInit(cmp module.CompanyUsecase) server.CompanyHandler {
 	return companyHandler{
@@ -90,6 +87,7 @@ func (com companyHandler) UpdateCompany(c *gin.Context) {
 	id, err := uuid.FromString(c.Param("company-id"))
 	if err != nil {
 		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+		return
 	}
 	comp := model.Company{ID: id}
 	ctx := c.Request.Context()
@@ -115,6 +113,7 @@ func (com companyHandler) DeleteCompany(c *gin.Context) {
 	id, err := uuid.FromString(c.Param("company-id"))
 	if err != nil {
 		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+		return
 	}
 	comp := model.Company{ID: id}
 	ctx := c.Request.Context()
@@ -127,3 +126,4 @@ func (com companyHandler) DeleteCompany(c *gin.Context) {
 	}
 	constant.ResponseJson(c, "company Deleted", http.StatusOK)
 }
+

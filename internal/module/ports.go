@@ -27,8 +27,8 @@ type PolicyUseCase interface {
 	UpdatePolicy(c context.Context, rule model.CasbinRule) (*model.CasbinRule, error)
 	DeletePolicy(c context.Context, id uint) error
 	StorePolicy(c context.Context, role model.CasbinRule) (*model.CasbinRule, error)
-	CompanyPolicy(c context.Context, u_id uuid.UUID) (*model.CasbinRule, error)
-	CompanyPolicies(ctx context.Context) ([]model.CasbinRule, error)
+	CompanyPolicy(c context.Context, u_id uuid.UUID) ([]model.Policy, error)
+	CompanyPolicies(ctx context.Context) ([]model.Policy, error)
 }
 
 //SmsUsecase interface contains function of business logic port for domain PushedNotification
