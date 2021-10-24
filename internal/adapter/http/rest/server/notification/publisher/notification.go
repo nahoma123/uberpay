@@ -16,8 +16,6 @@ import (
 	"template/internal/module"
 )
 
-
-
 //notificationHandler implements notification servicea and goalang validator object
 type notificationHandler struct {
 	notificationUseCase module.NotificationUsecase

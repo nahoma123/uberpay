@@ -27,6 +27,7 @@ type CompanyUser struct {
 	CompanyID uuid.UUID `json:"company_id" gorm:"primaryKey" validate:"required"`
 	Role      string    `json:"role" validate:"required"`
 }
+
 //type UserCompanyRole struct {
 //	UserID    uuid.UUID `json:"user_id,omitempty"`
 //	User      *User     `json:"user,omitempty" gorm:"foreignKey:UserID"`

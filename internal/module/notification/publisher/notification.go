@@ -11,9 +11,10 @@ import (
 	"template/internal/module"
 	"time"
 )
+
 //Service defines all necessary service for the domain sms
 type service struct {
-	notifyPersist   storage.NotificationPersistence
+	notifyPersist  storage.NotificationPersistence
 	validate       *validator.Validate
 	trans          ut.Translator
 	contextTimeout time.Duration
@@ -22,12 +23,13 @@ type service struct {
 //Initialize  creates a new object with UseCase type
 func Initialize(notp storage.NotificationPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.NotificationUsecase {
 	return &service{
-		notifyPersist: notp,
+		notifyPersist:  notp,
 		validate:       validate,
 		trans:          trans,
 		contextTimeout: timeout,
 	}
 }
+
 //Notifications returns all pushed notifications
 func (s service) Notifications(c context.Context) ([]model.PushedNotification, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)

@@ -18,7 +18,7 @@ insert  into casbin_rule values
                                  (14,'p','SUPER-ADMIN','/companies/:company-id','update','*'),
                                  (15,'p','SUPER-ADMIN','/companies/:company-id','delete','*'),
 
-                                 ( 16,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/notifications','create','*'),
+                                 (16,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/notifications','create','*'),
                                  (17,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/notifications','read','*'),
                                  (18,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/notifications/:id','delete','*'),
                                  (19,'p','SUPER-ADMIN|SYSTEM-CLERK|COMPANY-ADMIN|COMPANY-CLERK','/v1/notifications/unread/publish','read','*'),
@@ -32,5 +32,7 @@ insert  into casbin_rule values
                                  (27,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/policies','update','*'),
                                  (28,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/policies','delete','*'),
                                  (29,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/companies/policies','read','c11f8819-afe6-4367-bd8f-4d5adb553433'),
-                                 (30,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/companies/:company-id/policies','read','c11f8819-afe6-4367-bd8f-4d5adb553433');
-;
+                                 (30,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/companies/:company-id/policies','read','c11f8819-afe6-4367-bd8f-4d5adb553433'),
+                                 (31,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/companies/images','create','*'),
+                                 (32,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/companies/images','read','*'),
+                                 (33,'p','SUPER-ADMIN|COMPANY-ADMIN','/v1/companies/images','update','*');

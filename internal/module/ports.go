@@ -59,8 +59,10 @@ type CompanyUsecase interface {
 	StoreCompany(ctx context.Context, param model.Company) (*model.Company, error)
 	UpdateCompany(ctx context.Context, param model.Company) (*model.Company, error)
 	DeleteCompany(ctx context.Context, param model.Company) error
+	StoreCompanyImage(ctx context.Context, images model.CompanyImage) (*model.CompanyImage, error)
+	UpdateCompanyImage(c context.Context, param model.CompanyImage) (*model.CompanyImage, error)
+	CompanyImages(ctx context.Context) ([]model.CompanyImage, error)
 	CompanyExists(ctx context.Context, param model.Company) (bool, error)
-
 }
 
 type LoginUseCase interface {

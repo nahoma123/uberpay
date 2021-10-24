@@ -22,12 +22,13 @@ type service struct {
 //Initialize  creates a new object with UseCase type
 func Initialize(em storage.EmailPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.EmailUsecase {
 	return &service{
-		emailPersist: em,
+		emailPersist:   em,
 		validate:       validate,
 		trans:          trans,
 		contextTimeout: timeout,
 	}
 }
+
 //SendEmailMessage send email message  to one or more users
 func (s service) SendEmailMessage(c context.Context, email model.EmailNotification) (*model.EmailNotification, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)

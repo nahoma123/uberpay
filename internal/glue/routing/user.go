@@ -7,8 +7,8 @@ import (
 
 // UserRoutes registers users routes
 func UserRoutes(grp *gin.RouterGroup, usrHandler server.UserHandler) {
-	grp.POST("/users", usrHandler.UserMiddleWare,usrHandler.StoreUser)
-	grp.PUT("/users/:user-id",usrHandler.UserMiddleWare, usrHandler.UpdateUser)
+	grp.POST("/users", usrHandler.UserMiddleWare, usrHandler.StoreUser)
+	grp.PUT("/users/:user-id", usrHandler.UserMiddleWare, usrHandler.UpdateUser)
 	grp.GET("/users/:user-id", usrHandler.UserByID)
 	grp.GET("/users", usrHandler.Users)
 	grp.DELETE("/users/:user-id", usrHandler.DeleteUser)

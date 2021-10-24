@@ -17,7 +17,7 @@ type CasbinAuth interface {
 	Policies(ctx context.Context) []model.Policy
 	UpdatePolicy(ctx context.Context, parm model.PolicyUpdate) error
 	GetAllRoles(c context.Context) []string
-	GetCompanyPolicyByID(c context.Context,companyid string) []model.Policy
+	GetCompanyPolicyByID(c context.Context, companyid string) []model.Policy
 	GetAllCompaniesPolicy(c context.Context) []model.Policy
 }
 type casbinAuthorizer struct {
@@ -36,6 +36,7 @@ func NewEnforcer(e *casbin.Enforcer, validate *validator.Validate, trans ut.Tran
 		trans:    trans,
 	}
 }
+
 //UpdatePolicy updates the policy
 func (r *casbinAuthorizer) UpdatePolicy(ctx context.Context, parm model.PolicyUpdate) error {
 	errV := constant.StructValidator(parm, r.validate, r.trans)
@@ -58,6 +59,7 @@ func (r *casbinAuthorizer) UpdatePolicy(ctx context.Context, parm model.PolicyUp
 		return errors.ErrPermissionAlreadyDefined
 	}
 }
+
 //AddPolicy adds new policy to casbin_rule table
 func (r *casbinAuthorizer) AddPolicy(c context.Context, cas model.Policy) error {
 	errV := constant.StructValidator(cas, r.validate, r.trans)
@@ -78,6 +80,7 @@ func (r *casbinAuthorizer) AddPolicy(c context.Context, cas model.Policy) error 
 		return errors.ErrPermissionAlreadyDefined
 	}
 }
+
 //RemovePolicy removes policy from casbin rule table
 func (r *casbinAuthorizer) RemovePolicy(c context.Context, cas model.Policy) error {
 	success, err := r.e.RemovePolicy(cas.Subject, cas.Object, cas.Action)
@@ -95,6 +98,7 @@ func (r *casbinAuthorizer) RemovePolicy(c context.Context, cas model.Policy) err
 		return errors.ErrPermissionPermissionNotFound
 	}
 }
+
 //Policies fetches all policies from casbin_rule table
 func (r *casbinAuthorizer) Policies(c context.Context) []model.Policy {
 	policies := r.e.GetPolicy()
@@ -115,32 +119,36 @@ func (r *casbinAuthorizer) GetAllRoles(c context.Context) []string {
 	return r.e.GetAllRoles()
 }
 func (r *casbinAuthorizer) GetAllCompaniesPolicy(c context.Context) []model.Policy {
-	AllPolicies:=r.e.GetPolicy()
+	AllPolicies := r.e.GetPolicy()
 	var policies []model.Policy
 	for _, policy := range AllPolicies {
-		p:=model.Policy{}
-		if policy[3]!="*"{
-			p.Subject=policy[0]
-			p.Object=policy[1]
-			p.Action=policy[2]
-			p.CompanyID=policy[3]
-		}else {continue}
-		policies=append(policies,p)
+		p := model.Policy{}
+		if policy[3] != "*" {
+			p.Subject = policy[0]
+			p.Object = policy[1]
+			p.Action = policy[2]
+			p.CompanyID = policy[3]
+		} else {
+			continue
+		}
+		policies = append(policies, p)
 	}
 	return policies
 }
-func (r *casbinAuthorizer) GetCompanyPolicyByID(c context.Context,companyid string) []model.Policy {
-	AllPolicies:=r.e.GetPolicy()
+func (r *casbinAuthorizer) GetCompanyPolicyByID(c context.Context, companyid string) []model.Policy {
+	AllPolicies := r.e.GetPolicy()
 	var policies []model.Policy
 	for _, policy := range AllPolicies {
-		p:=model.Policy{}
-		if policy[3]==companyid {
-			p.Subject=policy[0]
-			p.Object=policy[1]
-			p.Action=policy[2]
-			p.CompanyID=policy[3]
-		}else {continue}
-		policies=append(policies,p)
+		p := model.Policy{}
+		if policy[3] == companyid {
+			p.Subject = policy[0]
+			p.Object = policy[1]
+			p.Action = policy[2]
+			p.CompanyID = policy[3]
+		} else {
+			continue
+		}
+		policies = append(policies, p)
 	}
 	return policies
 }

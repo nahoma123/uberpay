@@ -76,6 +76,8 @@ var (
 	ErrInvalidField                   = errors.New("Empty field exist")
 	ErrConflictHappened               = errors.New("conflict happened")
 	ErrRequireApproval                = errors.New("Require approval")
+	ErrUnSupportedSize                = errors.New("Unsupported size")
+	ErrFieldAlreadyExist              = errors.New("Field already exist")
 )
 
 // Descriptions error description
@@ -126,7 +128,8 @@ var Descriptions = map[error]string{
 	ErrInvalidField:                   "Field must be field a correct value",
 	ErrConflictHappened:               "Conflicting error happened",
 	ErrRequireApproval:                "Needs approvals of user by company",
-
+	ErrUnSupportedSize:                "Unsupported image size",
+	ErrFieldAlreadyExist:              "No new value found it is already existed",
 }
 
 // StatusCodes response error HTTP status code
@@ -176,7 +179,9 @@ var StatusCodes = map[error]int{
 	ErrConflictHappened:               409,
 	ErrRequireApproval:                400,
 	ErrorUnableToFetch:                400,
-	ErrRecordNotFound:                  400,
+	ErrRecordNotFound:                 400,
+	ErrUnSupportedSize:                400,
+	ErrFieldAlreadyExist:              403,
 }
 
 // StatusCodes response error HTTP status code
@@ -229,4 +234,6 @@ var ErrCodes = map[error]int{
 	ErrRequireApproval:                4042,
 	ErrorUnableToFetch:                4043,
 	ErrRecordNotFound:                 4044,
+	ErrUnSupportedSize:                4045,
+	ErrFieldAlreadyExist:              4046,
 }

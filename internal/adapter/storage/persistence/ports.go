@@ -60,6 +60,10 @@ type CompanyPersistence interface {
 	UpdateCompany(ctx context.Context, param model.Company) (*model.Company, error)
 	DeleteCompany(ctx context.Context, param model.Company) error
 	CompanyExists(ctx context.Context, param model.Company) (bool, error)
+	StoreCompanyImage(ctx context.Context, images model.CompanyImage) (*model.CompanyImage, error)
+	UpdateCompanyImage(ctx context.Context, images model.CompanyImage) (*model.CompanyImage, error)
+	ImageExists(param model.Image) (bool, error)
+	CompanyImages(ctx context.Context) ([]model.CompanyImage, error)
 	MigrateCompany(ctx context.Context) error
 }
 type Handler interface {

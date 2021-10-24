@@ -11,10 +11,9 @@ import (
 	"time"
 )
 
-
 //Service defines all necessary service for the domain sms
 type service struct {
-	smsPersist   storage.SmsPersistence
+	smsPersist     storage.SmsPersistence
 	validate       *validator.Validate
 	trans          ut.Translator
 	contextTimeout time.Duration
@@ -23,7 +22,7 @@ type service struct {
 //Initialize  creates a new object with UseCase type
 func Initialize(smsPersist storage.SmsPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.SmsUsecase {
 	return &service{
-		smsPersist: smsPersist,
+		smsPersist:     smsPersist,
 		validate:       validate,
 		trans:          trans,
 		contextTimeout: timeout,

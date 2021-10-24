@@ -15,16 +15,14 @@ import (
 	"template/internal/module"
 )
 
-
-
 //smsHandler implements sms servicea and golang validator object
 type smsHandler struct {
-	smsUseCase  module.SmsUsecase
+	smsUseCase module.SmsUsecase
 	validate   *validator.Validate
 }
 
 //NewSmsHandler  initializes notification services and golang validator
-func NewSmsHandler(s  module.SmsUsecase, valid *validator.Validate) server.SmsHandler {
+func NewSmsHandler(s module.SmsUsecase, valid *validator.Validate) server.SmsHandler {
 	return &smsHandler{smsUseCase: s, validate: valid}
 }
 

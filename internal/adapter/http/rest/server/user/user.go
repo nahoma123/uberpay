@@ -13,10 +13,9 @@ import (
 	"template/internal/module"
 )
 
-
 // userHandler defines all the things necessary for users handlers
 type userHandler struct {
-	userUsecase  module.UserUsecase
+	userUsecase module.UserUsecase
 }
 
 //UserInit initializes a company handler for the domin company
@@ -35,14 +34,14 @@ func (uh userHandler) UserMiddleWare(c *gin.Context) {
 
 	users, err := uh.userUsecase.Users(c.Request.Context())
 	if err != nil {
-			nrr := custErr.NewErrorResponse(err)
-			constant.ResponseJson(c, nrr, http.StatusBadRequest)
-			return
+		nrr := custErr.NewErrorResponse(err)
+		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		return
 	}
-	if len(users)==0 && err==nil{
+	if len(users) == 0 && err == nil {
 		user.Status = "Active"
 		user.RoleName = "SUPER-ADMIN"
-	}else{
+	} else {
 		user.Status = "Pending"
 		user.RoleName = "anonymous"
 	}
@@ -128,7 +127,7 @@ func (uh userHandler) AddUserToCompany(c *gin.Context) {
 	}
 	usr := model.User{ID: company_user.UserID}
 	isExist, err := uh.userUsecase.UserExists(ctx, usr)
-	if err != nil || isExist==false{
+	if err != nil || isExist == false {
 		nrr := custErr.NewErrorResponse(err)
 		constant.ResponseJson(c, nrr, http.StatusBadRequest)
 		return
@@ -171,17 +170,17 @@ func (uh userHandler) GetCompanyUsers(c *gin.Context) {
 		constant.ResponseJson(c, nrr, http.StatusBadRequest)
 		return
 	}
-	users:=[]*model.User{}
+	users := []*model.User{}
 	for _, user := range company_users {
-		u:=model.User{}
-		u.ID=user.UserID
-		usr,err:=uh.userUsecase.UserByID(ctx,u)
+		u := model.User{}
+		u.ID = user.UserID
+		usr, err := uh.userUsecase.UserByID(ctx, u)
 		if err != nil {
 			nrr := custErr.NewErrorResponse(err)
 			constant.ResponseJson(c, nrr, http.StatusBadRequest)
 			return
 		}
-		users=append(users,usr)
+		users = append(users, usr)
 	}
 	constant.ResponseJson(c, users, http.StatusOK)
 }
@@ -193,9 +192,9 @@ func (uh userHandler) GetCompanyUserByID(c *gin.Context) {
 	}
 	ctx := c.Request.Context()
 	user, err := uh.userUsecase.GetCompanyUserByID(ctx, id)
-	u:=model.User{}
-	u.ID=user.UserID
-	usr,err:=uh.userUsecase.UserByID(ctx,u)
+	u := model.User{}
+	u.ID = user.UserID
+	usr, err := uh.userUsecase.UserByID(ctx, u)
 	if err != nil {
 		nrr := custErr.NewErrorResponse(err)
 		constant.ResponseJson(c, nrr, http.StatusBadRequest)

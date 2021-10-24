@@ -18,7 +18,6 @@ import (
 	"template/internal/module"
 )
 
-
 //emailHandler implements notification service and golang validator object
 type emailHandler struct {
 	notificationUseCase module.EmailUsecase

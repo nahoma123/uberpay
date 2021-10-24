@@ -15,11 +15,13 @@ const (
 	CompanyAdmin = "COMPANY-ADMIN"
 	CompanyClerk = "COMPANY-CLERK"
 )
+
 //ResponseJson creates new json object
 func ResponseJson(c *gin.Context, responseData interface{}, statusCode int) {
 	c.JSON(statusCode, responseData)
 	return
 }
+
 //StructValidator validates specific struct
 func StructValidator(structName interface{}, validate *validator.Validate, trans ut.Translator) error {
 	errV := validate.Struct(structName)
@@ -34,6 +36,7 @@ func StructValidator(structName interface{}, validate *validator.Validate, trans
 	}
 	return nil
 }
+
 //DbConnectionString connction string finder from the .env file
 func DbConnectionString() (string, error) {
 	host := os.Getenv("DB_HOST")

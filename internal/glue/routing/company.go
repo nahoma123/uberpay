@@ -10,7 +10,9 @@ func CompanyRoutes(grp *gin.RouterGroup, compHandler server.CompanyHandler) {
 	grp.POST("/companies", compHandler.CompanyMiddleWare, compHandler.StoreCompany)
 	grp.GET("/companies", compHandler.Companies)
 	grp.GET("/companies/:company-id", compHandler.CompanyByID)
-	grp.PUT("/companies/:company-id", compHandler.CompanyMiddleWare,compHandler.UpdateCompany)
+	grp.GET("/companies/images", compHandler.CompanyImages)
+	grp.PUT("/companies/images", compHandler.UpdateCompanyImage)
+	grp.POST("/companies/images", compHandler.StoreCompanyImage)
+	grp.PUT("/companies/:company-id", compHandler.CompanyMiddleWare, compHandler.UpdateCompany)
 	grp.DELETE("/companies/:company-id", compHandler.DeleteCompany)
 }
-

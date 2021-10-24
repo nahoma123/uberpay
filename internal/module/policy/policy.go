@@ -13,7 +13,6 @@ import (
 	"time"
 )
 
-
 type service struct {
 	permPersistence storage.PermissionPersistence
 	validate        *validator.Validate
@@ -32,42 +31,42 @@ func PolicyInitialize(permPersistence storage.PermissionPersistence, validate *v
 func (s service) CompanyPolicy(c context.Context, u_id uuid.UUID) ([]model.Policy, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	policies :=[]model.Policy{}
+	policies := []model.Policy{}
 	AllPolicy, err := s.permPersistence.Policies(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, policy := range AllPolicy {
-		p:=model.Policy{}
+		p := model.Policy{}
 		if policy.V3 == u_id.String() {
-			p.Subject=policy.V0
-			p.Object=policy.V1
-			p.Action=policy.V2
-			p.CompanyID=policy.V3
+			p.Subject = policy.V0
+			p.Object = policy.V1
+			p.Action = policy.V2
+			p.CompanyID = policy.V3
 		}
-		policies=append(policies,p)
+		policies = append(policies, p)
 	}
 	return policies, nil
 }
 func (s service) CompanyPolicies(c context.Context) ([]model.Policy, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	policies :=[]model.Policy{}
+	policies := []model.Policy{}
 	AllPolicy, err := s.permPersistence.Policies(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, policy := range AllPolicy {
-		p:=model.Policy{}
-		if policy.V3 !="*" {
-			p.Subject=policy.V0
-			p.Object=policy.V1
-			p.Action=policy.V2
-			p.CompanyID=policy.V3
+		p := model.Policy{}
+		if policy.V3 != "*" {
+			p.Subject = policy.V0
+			p.Object = policy.V1
+			p.Action = policy.V2
+			p.CompanyID = policy.V3
 		}
-		policies=append(policies,p)
+		policies = append(policies, p)
 	}
 	return policies, nil
 }

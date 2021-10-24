@@ -3,17 +3,21 @@ package server
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
+	"mime/multipart"
 )
+
 type AuthHandler interface {
 	Authorizer(e *casbin.Enforcer) gin.HandlerFunc
 	Login(c *gin.Context)
 }
+
 //SmsHandler contains all handler interfaces
 type SmsHandler interface {
 	SmsMessageMiddleWare(c *gin.Context)
 	SendSmsMessage(c *gin.Context)
 	GetCountUnreadSMsMessages(c *gin.Context)
 }
+
 // UserHandler contans a function of handlers for the domian file
 type UserHandler interface {
 	UserByID(c *gin.Context)
@@ -38,6 +42,7 @@ type PolicyHandler interface {
 	GetCompanyPolicyByID(c *gin.Context)
 	GetAllCompaniesPolicy(c *gin.Context)
 }
+
 //NotificationHandler contains all handler interfaces
 type NotificationHandler interface {
 	NotificationMiddleWare(c *gin.Context)
@@ -46,6 +51,7 @@ type NotificationHandler interface {
 	DeleteNotification(c *gin.Context)
 	GetCountUnreadPushNotificationMessages(c *gin.Context)
 }
+
 //EmailHandler contains all email handler interfaces
 type EmailHandler interface {
 	EmailMessageMiddleWare(c *gin.Context)
@@ -58,6 +64,9 @@ type CompanyHandler interface {
 	StoreCompany(c *gin.Context)
 	UpdateCompany(c *gin.Context)
 	DeleteCompany(c *gin.Context)
+	StoreCompanyImage(ctx *gin.Context)
+	UpdateCompanyImage(ctx *gin.Context)
+	CompanyImages(ctx *gin.Context)
+	SaveFile(f *multipart.FileHeader, format, path string, rwidth, rheiht uint) error
 	CompanyMiddleWare(c *gin.Context)
-
 }

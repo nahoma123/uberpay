@@ -5,6 +5,7 @@ type ErrorModel struct {
 	ErrorMessage     string `json:"errorMessage"`
 	ErrorDescription string `json:"errorDescription"`
 }
+
 func NewErrorResponse(err error) ErrorModel {
 	return ErrorModel{
 		ErrorMessage:     err.Error(),

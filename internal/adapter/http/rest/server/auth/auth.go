@@ -15,7 +15,6 @@ import (
 	custCas "template/platform/casbin"
 )
 
-
 type authHandler struct {
 	authUseCase module.LoginUseCase
 	casbinAuth  custCas.CasbinAuth
@@ -52,17 +51,17 @@ func (n *authHandler) Authorizer(e *casbin.Enforcer) gin.HandlerFunc {
 		}
 		err := e.LoadPolicy()
 		if err != nil {
-			log.Fatal("error ",err)
+			log.Fatal("error ", err)
 		}
 		var c_id string
-		if  claims.CompanyID == ""{
-			c_id="*"
-		}else {
-			c_id=strings.TrimSpace(claims.CompanyID)
+		if claims.CompanyID == "" {
+			c_id = "*"
+		} else {
+			c_id = strings.TrimSpace(claims.CompanyID)
 		}
 
-		res, err := e.Enforce(role, c.Request.URL.Path, actions[c.Request.Method],c_id)
-		fmt.Println("enforce error ",err,"res ",res)
+		res, err := e.Enforce(role, c.Request.URL.Path, actions[c.Request.Method], c_id)
+		fmt.Println("enforce error ", err, "res ", res)
 		if err != nil {
 			err := appErr.NewErrorResponse(appErr.ErrPermissionPermissionNotFound)
 			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])

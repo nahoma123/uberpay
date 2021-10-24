@@ -18,9 +18,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	authHandler "template/internal/adapter/http/rest/server/auth"
 	compHandler "template/internal/adapter/http/rest/server/company"
+	"template/internal/adapter/http/rest/server/image"
 	email3 "template/internal/adapter/http/rest/server/notification/email"
 	publisher3 "template/internal/adapter/http/rest/server/notification/publisher"
 	sms3 "template/internal/adapter/http/rest/server/notification/sms"
@@ -84,7 +86,7 @@ func Initialize() {
 	)
 	conn, err := gorm.Open(postgres.Open(DATABASE_URL), &gorm.Config{
 		SkipDefaultTransaction: true, //30% performance increases
-		Logger: newLogger,
+		Logger:                 newLogger,
 	})
 	if err != nil {
 		log.Printf("Error when Opening database connection: %v", err)
@@ -98,6 +100,8 @@ func Initialize() {
 		&model.SMS{},
 		&model.Company{},
 		&model.CompanyUser{},
+		&model.Image{},
+		&model.ImageFormat{},
 	)
 	a, err := gormadapter.NewAdapterByDBWithCustomTable(conn, &model.CasbinRule{})
 	e, err := casbin.NewEnforcer("../../rbac_model.conf", a)
@@ -142,7 +146,20 @@ func Initialize() {
 	authHandlers := authHandler.NewAuthHandler(authUsecases, casbinAuth)
 
 	compUsecase := compUsecase.Initialize(compPersistence, validate, trans, timeoutContext)
-	compHandler := compHandler.CompanyInit(compUsecase)
+	basePath, err := os.Getwd()
+	log.Println("--------base---path--")
+	log.Println(basePath)
+	if err != nil {
+		log.Fatalf("cannot get base path: %v", err)
+	}
+	path := filepath.Dir(basePath)
+	path = filepath.Dir(path)
+	fmt.Println("path ", path)
+	store, err := image.NewStorage(path)
+	if err != nil {
+		log.Fatalf("cannot create storage: %v", err)
+	}
+	compHandler := compHandler.CompanyInit(compUsecase, *store)
 
 	router := gin.Default()
 	router.Use(corsMW())

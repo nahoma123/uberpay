@@ -13,7 +13,6 @@ import (
 	"template/platform/casbin"
 )
 
-
 // policyHandler defines all the things necessary for users handlers
 type policyHandler struct {
 	casbinAuth casbin.CasbinAuth
@@ -116,6 +115,7 @@ func (ph policyHandler) UpdatePolicy(c *gin.Context) {
 	}
 	constant.ResponseJson(c, "Update successful", http.StatusOK)
 }
+
 //GetCompanyPolicyByID gets all company policy identified by id
 func (ph policyHandler) GetCompanyPolicyByID(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -124,13 +124,14 @@ func (ph policyHandler) GetCompanyPolicyByID(c *gin.Context) {
 		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
 		return
 	}
-	policies:=ph.casbinAuth.GetCompanyPolicyByID(ctx,id.String())
+	policies := ph.casbinAuth.GetCompanyPolicyByID(ctx, id.String())
 	constant.ResponseJson(c, policies, http.StatusOK)
 
 }
+
 //GetAllCompaniesPolicy gets all company policy
 func (ph policyHandler) GetAllCompaniesPolicy(c *gin.Context) {
-	ctx:=c.Request.Context()
-	policies:=ph.casbinAuth.GetAllCompaniesPolicy(ctx)
+	ctx := c.Request.Context()
+	policies := ph.casbinAuth.GetAllCompaniesPolicy(ctx)
 	constant.ResponseJson(c, policies, http.StatusOK)
 }

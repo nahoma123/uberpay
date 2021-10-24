@@ -2,8 +2,10 @@ package company
 
 import (
 	"context"
+	"fmt"
 	company "template/internal/adapter/storage/persistence"
 	"template/internal/constant"
+	custErr "template/internal/constant/errors"
 	"template/internal/constant/model"
 	"template/internal/module"
 	"time"
@@ -11,7 +13,6 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 )
-
 
 //Service defines all necessary service for the domain Company
 type service struct {
@@ -29,6 +30,50 @@ func Initialize(companyPersist company.CompanyPersistence, validate *validator.V
 		trans:          trans,
 		contextTimeout: timeout,
 	}
+}
+func (s *service) StoreCompanyImage(c context.Context, param model.CompanyImage) (*model.CompanyImage, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	errV := constant.StructValidator(param, s.validate, s.trans)
+	if errV != nil {
+		return nil, errV
+	}
+	isExist, err := s.companyPersist.ImageExists(model.Image{Hash: param.Image.Hash})
+	if err != nil {
+		return nil, err
+	}
+	if isExist {
+		return nil, custErr.ErrFieldAlreadyExist
+	}
+	image, err := s.companyPersist.StoreCompanyImage(ctx, param)
+	if err != nil {
+		return nil, err
+	}
+	return image, nil
+
+}
+func (s *service) UpdateCompanyImage(c context.Context, param model.CompanyImage) (*model.CompanyImage, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	errV := constant.StructValidator(param, s.validate, s.trans)
+	if errV != nil {
+		return nil, errV
+	}
+	isExist, err := s.companyPersist.ImageExists(model.Image{Hash: param.Image.Hash})
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("isExist ", isExist)
+	if isExist {
+		return s.companyPersist.UpdateCompanyImage(ctx, param)
+	}
+	return nil, custErr.ErrRecordNotFound
+
+}
+func (s *service) CompanyImages(c context.Context) ([]model.CompanyImage, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
+	defer cancel()
+	return s.companyPersist.CompanyImages(ctx)
 }
 
 func (s *service) CompanyByID(c context.Context, param model.Company) (*model.Company, error) {

@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-
-
 //Service defines all necessary service for the domain User
 type service struct {
 	usrRepo        repository.UserRepository
@@ -104,7 +102,7 @@ func (s *service) AddUserToCompany(c context.Context, parm model.CompanyUser) er
 	defer cancel()
 	errV := constant.StructValidator(parm, s.validate, s.trans)
 	if errV != nil {
-		return  errV
+		return errV
 	}
 	return s.usrPersist.AddUserToCompany(ctx, parm)
 

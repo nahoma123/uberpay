@@ -167,7 +167,7 @@ func (r userPersistence) GetCompanyUsers(ctx context.Context, companyID uuid.UUI
 	conn := r.conn.WithContext(ctx)
 	company_users := []model.CompanyUser{}
 	err := conn.Model(&model.CompanyUser{}).Where(model.CompanyUser{CompanyID: companyID}).Find(&company_users).Error
-fmt.Println("error persis get c-users ",err)
+	fmt.Println("error persis get c-users ", err)
 	if err != nil {
 		return nil, errors.ErrRecordNotFound
 	}
