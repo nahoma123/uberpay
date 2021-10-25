@@ -7,6 +7,7 @@ import (
 	"ride_plus/internal/constant"
 	custErr "ride_plus/internal/constant/errors"
 	"ride_plus/internal/constant/model"
+	utils "ride_plus/internal/constant/model/init"
 	"ride_plus/internal/module"
 	"strings"
 
@@ -20,7 +21,7 @@ type userHandler struct {
 }
 
 //UserInit initializes a company handler for the domin company
-func UserInit(urs module.UserUsecase) server.UserHandler {
+func UserInit(urs module.UserUsecase, utils utils.Utils) server.UserHandler {
 	return userHandler{
 		userUsecase: urs,
 	}

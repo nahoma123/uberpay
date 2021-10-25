@@ -27,7 +27,7 @@ func CompUserInit(utils utils.Utils, router *gin.RouterGroup) {
 
 	usrUsecase := usrUsecase.Initialize(usrRepo, usrPersistence, utils)
 
-	usrHandler := usrHandler.UserInit(usrUsecase)
+	usrHandler := usrHandler.UserInit(usrUsecase, utils)
 
 	compPersistence := company.CompanyInit(utils)
 	compUsecase := compUsecase.Initialize(compPersistence, utils)
