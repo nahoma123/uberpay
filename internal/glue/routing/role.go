@@ -1,7 +1,7 @@
 package routing
 
 import (
-	"template/internal/adapter/http/rest/server/role"
+	"ride_plus/internal/adapter/http/rest/server/role"
 
 	"github.com/gin-gonic/gin"
 )

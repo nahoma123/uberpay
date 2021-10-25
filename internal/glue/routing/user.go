@@ -1,8 +1,9 @@
 package routing
 
 import (
+	"ride_plus/internal/adapter/http/rest/server"
+
 	"github.com/gin-gonic/gin"
-	"template/internal/adapter/http/rest/server"
 )
 
 // UserRoutes registers users routes

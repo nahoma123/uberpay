@@ -27,7 +27,7 @@ func AuthInit(utils utils.Utils, router *gin.RouterGroup) {
 		log.Fatal("error ", err)
 	}
 
-	e, err := casbin.NewEnforcer("../../rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("rbac_model.conf", a)
 	if err != nil {
 		log.Fatal("error ", err)
 	}
