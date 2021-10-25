@@ -7,7 +7,7 @@ import (
 	rlHandler "ride_plus/internal/adapter/http/rest/server/role"
 	"ride_plus/internal/adapter/storage/persistence/role"
 	"ride_plus/internal/adapter/storage/persistence/user"
-	"ride_plus/internal/constant/model"
+	model "ride_plus/internal/constant/model/dbmodels"
 	utils "ride_plus/internal/constant/model/init"
 	routing2 "ride_plus/internal/glue/routing"
 	authUsecase "ride_plus/internal/module/auth"

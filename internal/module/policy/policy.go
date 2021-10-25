@@ -5,7 +5,7 @@ import (
 	"fmt"
 	storage "ride_plus/internal/adapter/storage/persistence"
 	"ride_plus/internal/constant"
-	"ride_plus/internal/constant/model"
+	model "ride_plus/internal/constant/model/dbmodels"
 	"ride_plus/internal/module"
 	"time"
 

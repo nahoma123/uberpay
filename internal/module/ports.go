@@ -2,7 +2,7 @@ package module
 
 import (
 	"context"
-	"ride_plus/internal/constant/model"
+	model "ride_plus/internal/constant/model/dbmodels"
 
 	uuid "github.com/satori/go.uuid"
 )

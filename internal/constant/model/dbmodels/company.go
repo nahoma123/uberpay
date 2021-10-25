@@ -8,7 +8,7 @@ import (
 )
 
 type Company struct {
-	ID        uuid.UUID      `json:"id" gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
+	ID        uuid.UUID      `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	Name      string         `json:"name,omitempty" form:"name" validate:"required"`
 	Phone     string         `json:"phone,omitempty" form:"phone" validate:"required"`
 	Address   string         `json:"address,omitempty"`

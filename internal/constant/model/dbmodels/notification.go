@@ -1,12 +1,13 @@
 package model
 
 import (
-	uuid "github.com/satori/go.uuid"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type PushedNotification struct {
-	ID        uuid.UUID `json:"id" gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
+	ID        uuid.UUID `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	ApiKey    string    `json:"api_key" validate:"required"`
 	Token     string    `json:"token" validate:"required"`
 	Title     string    `json:"title" validate:"required"`
@@ -17,7 +18,7 @@ type PushedNotification struct {
 	UpdatedAt time.Time `json:"updated_at" validate:"required"`
 }
 type SMS struct {
-	SmsID         uuid.UUID `json:"id" gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
+	SmsID         uuid.UUID `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	Password      string    `json:"password" validate:"required"`
 	User          string    `json:"user" validate:"required"`
 	SenderId      string    `json:"sender_id" validate:"required"`
@@ -30,7 +31,7 @@ type SMS struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 type EmailNotification struct {
-	ID        uuid.UUID `json:"email_message_id" gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
+	ID        uuid.UUID `json:"email_message_id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	Body      string    `json:"body"    validator:"required"`
 	From      string    `json:"from"  validate:"required,email"`
 	To        string    `json:"to"      validate:"required,email"`

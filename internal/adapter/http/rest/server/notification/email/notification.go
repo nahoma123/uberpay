@@ -10,7 +10,7 @@ import (
 	"ride_plus/internal/adapter/http/rest/server"
 	"ride_plus/internal/constant"
 	custErr "ride_plus/internal/constant/errors"
-	"ride_plus/internal/constant/model"
+	model "ride_plus/internal/constant/model/dbmodels"
 	"ride_plus/internal/module"
 	"strconv"
 	"strings"

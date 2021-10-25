@@ -4,7 +4,7 @@ import (
 	"context"
 	storage "ride_plus/internal/adapter/storage/persistence"
 	"ride_plus/internal/constant"
-	"ride_plus/internal/constant/model"
+	model "ride_plus/internal/constant/model/dbmodels"
 	utils "ride_plus/internal/constant/model/init"
 	"time"
 

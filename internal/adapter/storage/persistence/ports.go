@@ -2,7 +2,7 @@ package storage
 
 import (
 	"context"
-	"ride_plus/internal/constant/model"
+	model "ride_plus/internal/constant/model/dbmodels"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"

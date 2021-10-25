@@ -1,13 +1,14 @@
 package model
 
 import (
-	uuid "github.com/satori/go.uuid"
 	"mime/multipart"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type Image struct {
-	ID              uuid.UUID             `json:"id" gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	ID              uuid.UUID             `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	Name            string                `json:"name,omitempty" validate:"required"`
 	ImageFile       *multipart.FileHeader `json:"-" form:"image" gorm:"-"`
 	AlternativeText string                `json:"alternativeText,omitempty" form:"alternativeText"`

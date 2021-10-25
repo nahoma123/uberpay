@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"ride_plus/internal/constant"
 	"ride_plus/internal/constant/errors"
-	"ride_plus/internal/constant/model"
 
+	model "ride_plus/internal/constant/model/dbmodels"
 	utils "ride_plus/internal/constant/model/init"
 
 	uuid "github.com/satori/go.uuid"

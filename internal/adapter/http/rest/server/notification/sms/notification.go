@@ -8,10 +8,10 @@ import (
 	"ride_plus/internal/adapter/http/rest/server"
 	"ride_plus/internal/constant"
 	"ride_plus/internal/constant/errors"
-	"ride_plus/internal/constant/model"
 	"ride_plus/internal/module"
 	"strings"
 
+	model "ride_plus/internal/constant/model/dbmodels"
 	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/gin-gonic/gin"

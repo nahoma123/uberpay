@@ -6,7 +6,7 @@ import (
 	"fmt"
 	storage "ride_plus/internal/adapter/storage/persistence"
 	custErr "ride_plus/internal/constant/errors"
-	"ride_plus/internal/constant/model"
+	model "ride_plus/internal/constant/model/dbmodels"
 	utils "ride_plus/internal/constant/model/init"
 
 	"gorm.io/gorm"

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"ride_plus/internal/adapter/storage/persistence/user"
 	"ride_plus/internal/constant/errors"
-	"ride_plus/internal/constant/model"
 	"ride_plus/internal/module"
 	"time"
 
+	model "ride_plus/internal/constant/model/dbmodels"
 	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/dgrijalva/jwt-go"

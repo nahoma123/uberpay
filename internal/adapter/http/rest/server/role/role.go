@@ -6,10 +6,10 @@ import (
 	"os"
 	"ride_plus/internal/constant"
 	"ride_plus/internal/constant/errors"
-	"ride_plus/internal/constant/model"
 	"ride_plus/internal/module/role"
 	"strings"
 
+	model "ride_plus/internal/constant/model/dbmodels"
 	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/gin-gonic/gin"

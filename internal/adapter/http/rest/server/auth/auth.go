@@ -7,7 +7,7 @@ import (
 	"ride_plus/internal/adapter/http/rest/server"
 	"ride_plus/internal/constant"
 	appErr "ride_plus/internal/constant/errors"
-	"ride_plus/internal/constant/model"
+	model "ride_plus/internal/constant/model/dbmodels"
 	"ride_plus/internal/module"
 	custCas "ride_plus/platform/casbin"
 	"strings"
