@@ -4,19 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	storage "template/internal/adapter/storage/persistence"
 	custErr "template/internal/constant/errors"
 	"template/internal/constant/model"
+	utils "template/internal/constant/model/init"
+
+	"gorm.io/gorm"
 )
 
 type companyPersistence struct {
 	conn *gorm.DB
 }
 
-func CompanyInit(conn *gorm.DB) storage.CompanyPersistence {
+func CompanyInit(utils utils.Utils) storage.CompanyPersistence {
 	return &companyPersistence{
-		conn: conn,
+		conn: utils.Conn,
 	}
 }
 

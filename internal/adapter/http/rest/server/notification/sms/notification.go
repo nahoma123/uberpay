@@ -3,8 +3,6 @@ package sms
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"os"
 	"strings"
@@ -13,6 +11,11 @@ import (
 	"template/internal/constant/errors"
 	"template/internal/constant/model"
 	"template/internal/module"
+
+	utils "template/internal/constant/model/init"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 //smsHandler implements sms servicea and golang validator object
@@ -22,8 +25,8 @@ type smsHandler struct {
 }
 
 //NewSmsHandler  initializes notification services and golang validator
-func NewSmsHandler(s module.SmsUsecase, valid *validator.Validate) server.SmsHandler {
-	return &smsHandler{smsUseCase: s, validate: valid}
+func NewSmsHandler(smsUseCase module.SmsUsecase, utils utils.Utils) server.SmsHandler {
+	return &smsHandler{smsUseCase: smsUseCase, validate: utils.GoValidator}
 }
 
 //MiddleWareValidateSmsMessage binds sms data SMS struct

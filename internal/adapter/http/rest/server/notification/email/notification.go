@@ -5,8 +5,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	gomail "gopkg.in/mail.v2"
 	"net/http"
 	"os"
 	"strconv"
@@ -16,6 +14,9 @@ import (
 	custErr "template/internal/constant/errors"
 	"template/internal/constant/model"
 	"template/internal/module"
+
+	"github.com/gin-gonic/gin"
+	gomail "gopkg.in/mail.v2"
 )
 
 //emailHandler implements notification service and golang validator object
@@ -25,10 +26,10 @@ type emailHandler struct {
 }
 
 //NewEmailHandler  initializes notification services and golang validator
-func NewEmailHandler(em module.EmailUsecase, mes *gomail.Message) server.EmailHandler {
+func NewEmailHandler(notificationUseCase module.EmailUsecase, m *gomail.Message) server.EmailHandler {
 	return &emailHandler{
-		notificationUseCase: em,
-		m:                   mes,
+		notificationUseCase: notificationUseCase,
+		m:                   m,
 	}
 }
 

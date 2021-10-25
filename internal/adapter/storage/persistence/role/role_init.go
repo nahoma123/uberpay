@@ -3,19 +3,21 @@ package role
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm"
-	"template/internal/adapter/storage/persistence"
+	storage "template/internal/adapter/storage/persistence"
 	"template/internal/constant/errors"
 	"template/internal/constant/model"
+	utils "template/internal/constant/model/init"
+
+	"gorm.io/gorm"
 )
 
 type rolePersistence struct {
 	conn *gorm.DB
 }
 
-func RoleInit(conn *gorm.DB) storage.RolePersistence {
+func RoleInit(utils utils.Utils) storage.RolePersistence {
 	return &rolePersistence{
-		conn: conn,
+		conn: utils.Conn,
 	}
 }
 

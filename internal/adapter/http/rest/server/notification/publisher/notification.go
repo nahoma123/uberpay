@@ -2,10 +2,6 @@ package publisher
 
 import (
 	"fmt"
-	"github.com/appleboy/go-fcm"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-	"github.com/satori/go.uuid"
 	"net/http"
 	"os"
 	"strings"
@@ -13,7 +9,13 @@ import (
 	"template/internal/constant"
 	"template/internal/constant/errors"
 	"template/internal/constant/model"
+	utils "template/internal/constant/model/init"
 	"template/internal/module"
+
+	"github.com/appleboy/go-fcm"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	uuid "github.com/satori/go.uuid"
 )
 
 //notificationHandler implements notification servicea and goalang validator object
@@ -23,10 +25,10 @@ type notificationHandler struct {
 }
 
 //NewNotificationHandler  initializes notification services and golang validator
-func NewNotificationHandler(notfCase module.NotificationUsecase, valid *validator.Validate) server.NotificationHandler {
+func NewNotificationHandler(notificationUseCase module.NotificationUsecase, utils utils.Utils) server.NotificationHandler {
 	return &notificationHandler{
-		notificationUseCase: notfCase,
-		validate:            valid,
+		notificationUseCase: notificationUseCase,
+		validate:            utils.GoValidator,
 	}
 }
 

@@ -10,6 +10,8 @@ import (
 	"template/internal/constant/model"
 	"template/internal/module/role"
 
+	utils "template/internal/constant/model/init"
+
 	"github.com/gin-gonic/gin"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -28,8 +30,8 @@ type rolesHandler struct {
 	trans       ut.Translator
 }
 
-func NewRoleHandler(useCase role.UseCase, trans ut.Translator, validate *validator.Validate) RolesHandler {
-	return &rolesHandler{roleUseCase: useCase, trans: trans, validate: validate}
+func NewRoleHandler(useCase role.UseCase, utils utils.Utils) RolesHandler {
+	return &rolesHandler{roleUseCase: useCase, trans: utils.Translator, validate: utils.GoValidator}
 }
 func (n rolesHandler) RoleMiddleWare(c *gin.Context) {
 	roleX := model.Role{}

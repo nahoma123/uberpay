@@ -2,12 +2,14 @@ package role
 
 import (
 	"context"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
-	"template/internal/adapter/storage/persistence"
+	storage "template/internal/adapter/storage/persistence"
 	"template/internal/constant"
 	"template/internal/constant/model"
+	utils "template/internal/constant/model/init"
 	"time"
+
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 )
 
 type UseCase interface {
@@ -23,12 +25,12 @@ type service struct {
 	contextTimeout  time.Duration
 }
 
-func RoleInitialize(rolePersistence storage.RolePersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) UseCase {
+func RoleInitialize(rolePersistence storage.RolePersistence, utils utils.Utils) UseCase {
 	return &service{
 		rolePersistence: rolePersistence,
-		validate:        validate,
-		trans:           trans,
-		contextTimeout:  timeout,
+		validate:        utils.GoValidator,
+		trans:           utils.Translator,
+		contextTimeout:  utils.Timeout,
 	}
 }
 func (s service) Roles(c context.Context) ([]model.Role, error) {

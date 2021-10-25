@@ -10,6 +10,8 @@ import (
 	"template/internal/module"
 	"time"
 
+	utils "template/internal/constant/model/init"
+
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 )
@@ -23,12 +25,12 @@ type service struct {
 }
 
 //Initialize  creates a new object with UseCase type
-func Initialize(companyPersist company.CompanyPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.CompanyUsecase {
+func Initialize(companyPersist company.CompanyPersistence, utils utils.Utils) module.CompanyUsecase {
 	return &service{
 		companyPersist: companyPersist,
-		validate:       validate,
-		trans:          trans,
-		contextTimeout: timeout,
+		validate:       utils.GoValidator,
+		trans:          utils.Translator,
+		contextTimeout: utils.Timeout,
 	}
 }
 func (s *service) StoreCompanyImage(c context.Context, param model.CompanyImage) (*model.CompanyImage, error) {

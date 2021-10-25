@@ -2,13 +2,15 @@ package casbin
 
 import (
 	"context"
-	"github.com/casbin/casbin/v2"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
 	"log"
 	"template/internal/constant"
 	"template/internal/constant/errors"
 	"template/internal/constant/model"
+	utils "template/internal/constant/model/init"
+
+	"github.com/casbin/casbin/v2"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 )
 
 type CasbinAuth interface {
@@ -27,13 +29,13 @@ type casbinAuthorizer struct {
 }
 
 // NewEnforcer creates an enforcer via file or DB.
-func NewEnforcer(e *casbin.Enforcer, validate *validator.Validate, trans ut.Translator) CasbinAuth {
+func NewEnforcer(e *casbin.Enforcer, utils utils.Utils) CasbinAuth {
 	e.EnableAutoSave(true)
 	e.LoadPolicy()
 	return &casbinAuthorizer{
 		e:        e,
-		validate: validate,
-		trans:    trans,
+		validate: utils.GoValidator,
+		trans:    utils.Translator,
 	}
 }
 

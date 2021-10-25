@@ -2,15 +2,18 @@ package user
 
 import (
 	"context"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
-	uuid "github.com/satori/go.uuid"
 	"template/internal/adapter/repository"
 	"template/internal/adapter/storage/persistence/user"
 	"template/internal/constant"
 	"template/internal/constant/model"
 	"template/internal/module"
 	"time"
+
+	utils "template/internal/constant/model/init"
+
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
+	uuid "github.com/satori/go.uuid"
 )
 
 //Service defines all necessary service for the domain User
@@ -23,13 +26,13 @@ type service struct {
 }
 
 //Initialize creates a new object with LoginUseCase type
-func Initialize(usrRepo repository.UserRepository, usrPersist user.UserPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.UserUsecase {
+func Initialize(usrRepo repository.UserRepository, usrPersist user.UserPersistence, utils utils.Utils) module.UserUsecase {
 	return &service{
 		usrRepo:        usrRepo,
 		usrPersist:     usrPersist,
-		validate:       validate,
-		trans:          trans,
-		contextTimeout: timeout,
+		validate:       utils.GoValidator,
+		trans:          utils.Translator,
+		contextTimeout: utils.Timeout,
 	}
 }
 

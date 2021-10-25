@@ -2,13 +2,16 @@ package email
 
 import (
 	"context"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
 	storage "template/internal/adapter/storage/persistence"
 	"template/internal/constant"
 	"template/internal/constant/model"
 	"template/internal/module"
 	"time"
+
+	utils "template/internal/constant/model/init"
+
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 )
 
 //Service defines all necessary service for the domain sms
@@ -20,12 +23,12 @@ type service struct {
 }
 
 //Initialize  creates a new object with UseCase type
-func Initialize(em storage.EmailPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.EmailUsecase {
+func Initialize(emailPersist storage.EmailPersistence, utils utils.Utils) module.EmailUsecase {
 	return &service{
-		emailPersist:   em,
-		validate:       validate,
-		trans:          trans,
-		contextTimeout: timeout,
+		emailPersist:   emailPersist,
+		validate:       utils.GoValidator,
+		trans:          utils.Translator,
+		contextTimeout: utils.Timeout,
 	}
 }
 

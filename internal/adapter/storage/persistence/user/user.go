@@ -3,11 +3,14 @@ package user
 import (
 	"context"
 	"fmt"
-	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 	"template/internal/constant"
 	"template/internal/constant/errors"
 	"template/internal/constant/model"
+
+	utils "template/internal/constant/model/init"
+
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 type UserPersistence interface {
@@ -29,9 +32,9 @@ type userPersistence struct {
 	conn *gorm.DB
 }
 
-func UserInit(conn *gorm.DB) UserPersistence {
+func UserInit(utils utils.Utils) UserPersistence {
 	return &userPersistence{
-		conn: conn,
+		conn: utils.Conn,
 	}
 }
 func (r userPersistence) GetCompanyUserByID(ctx context.Context, user_id uuid.UUID) (*model.CompanyUser, error) {

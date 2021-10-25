@@ -2,13 +2,16 @@ package sms
 
 import (
 	"context"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
 	storage "template/internal/adapter/storage/persistence"
 	"template/internal/constant"
 	"template/internal/constant/model"
 	"template/internal/module"
 	"time"
+
+	utils "template/internal/constant/model/init"
+
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 )
 
 //Service defines all necessary service for the domain sms
@@ -20,12 +23,12 @@ type service struct {
 }
 
 //Initialize  creates a new object with UseCase type
-func Initialize(smsPersist storage.SmsPersistence, validate *validator.Validate, trans ut.Translator, timeout time.Duration) module.SmsUsecase {
+func Initialize(smsPersist storage.SmsPersistence, utils utils.Utils) module.SmsUsecase {
 	return &service{
 		smsPersist:     smsPersist,
-		validate:       validate,
-		trans:          trans,
-		contextTimeout: timeout,
+		validate:       utils.GoValidator,
+		trans:          utils.Translator,
+		contextTimeout: utils.Timeout,
 	}
 }
 

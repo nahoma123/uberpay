@@ -3,13 +3,16 @@ package auth
 import (
 	"context"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/bcrypt"
 	"template/internal/adapter/storage/persistence/user"
 	"template/internal/constant/errors"
 	"template/internal/constant/model"
 	"template/internal/module"
 	"time"
+
+	utils "template/internal/constant/model/init"
+
+	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type service struct {
@@ -18,11 +21,11 @@ type service struct {
 	contextTimeout  time.Duration
 }
 
-func Initialize(userPersistence user.UserPersistence, jwtManager JWTManager, timeout time.Duration) module.LoginUseCase {
+func Initialize(userPersistence user.UserPersistence, jwtManager JWTManager, utils utils.Utils) module.LoginUseCase {
 	return &service{
 		userPersistence: userPersistence,
 		jwtManager:      jwtManager,
-		contextTimeout:  timeout,
+		contextTimeout:  utils.Timeout,
 	}
 }
 func (s service) GetClaims(token string) (*model.UserClaims, error) {
