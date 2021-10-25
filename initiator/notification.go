@@ -1,17 +1,17 @@
 package initiator
 
 import (
-	email3 "template/internal/adapter/http/rest/server/notification/email"
-	publisher3 "template/internal/adapter/http/rest/server/notification/publisher"
-	sms3 "template/internal/adapter/http/rest/server/notification/sms"
-	"template/internal/adapter/storage/persistence/notification/email"
-	"template/internal/adapter/storage/persistence/notification/publisher"
-	"template/internal/adapter/storage/persistence/notification/sms"
-	utils "template/internal/constant/model/init"
-	routing2 "template/internal/glue/routing"
-	email2 "template/internal/module/notification/email"
-	publisher2 "template/internal/module/notification/publisher"
-	sms2 "template/internal/module/notification/sms"
+	email3 "ride_plus/internal/adapter/http/rest/server/notification/email"
+	publisher3 "ride_plus/internal/adapter/http/rest/server/notification/publisher"
+	sms3 "ride_plus/internal/adapter/http/rest/server/notification/sms"
+	"ride_plus/internal/adapter/storage/persistence/notification/email"
+	"ride_plus/internal/adapter/storage/persistence/notification/publisher"
+	"ride_plus/internal/adapter/storage/persistence/notification/sms"
+	utils "ride_plus/internal/constant/model/init"
+	routing2 "ride_plus/internal/glue/routing"
+	email2 "ride_plus/internal/module/notification/email"
+	publisher2 "ride_plus/internal/module/notification/publisher"
+	sms2 "ride_plus/internal/module/notification/sms"
 
 	"github.com/gin-gonic/gin"
 	gomail "gopkg.in/mail.v2"

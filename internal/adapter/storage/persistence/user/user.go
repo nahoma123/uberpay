@@ -3,11 +3,11 @@ package user
 import (
 	"context"
 	"fmt"
-	"template/internal/constant"
-	"template/internal/constant/errors"
-	"template/internal/constant/model"
+	"ride_plus/internal/constant"
+	"ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
 
-	utils "template/internal/constant/model/init"
+	utils "ride_plus/internal/constant/model/init"
 
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"

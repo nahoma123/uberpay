@@ -1,4 +1,4 @@
-module template
+module ride_plus
 
 go 1.16
 

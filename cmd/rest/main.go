@@ -1,6 +1,6 @@
 package main
 
-import "template/initiator"
+import "ride_plus/initiator"
 
 func main() {
 	initiator.Initialize()

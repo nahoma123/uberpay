@@ -3,14 +3,14 @@ package company
 import (
 	"context"
 	"fmt"
-	company "template/internal/adapter/storage/persistence"
-	"template/internal/constant"
-	custErr "template/internal/constant/errors"
-	"template/internal/constant/model"
-	"template/internal/module"
+	company "ride_plus/internal/adapter/storage/persistence"
+	"ride_plus/internal/constant"
+	custErr "ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
+	"ride_plus/internal/module"
 	"time"
 
-	utils "template/internal/constant/model/init"
+	utils "ride_plus/internal/constant/model/init"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"

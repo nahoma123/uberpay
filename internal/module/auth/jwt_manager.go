@@ -2,8 +2,8 @@ package auth
 
 import (
 	"fmt"
-	"template/internal/constant/errors"
-	"template/internal/constant/model"
+	"ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
 
 	"github.com/dgrijalva/jwt-go"
 )

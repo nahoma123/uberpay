@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	storage "template/internal/adapter/storage/persistence"
-	custErr "template/internal/constant/errors"
-	"template/internal/constant/model"
-	utils "template/internal/constant/model/init"
+	storage "ride_plus/internal/adapter/storage/persistence"
+	custErr "ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
+	utils "ride_plus/internal/constant/model/init"
 
 	"gorm.io/gorm"
 )

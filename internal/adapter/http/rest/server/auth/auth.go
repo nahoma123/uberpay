@@ -2,17 +2,18 @@ package auth
 
 import (
 	"fmt"
-	"github.com/casbin/casbin/v2"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"ride_plus/internal/adapter/http/rest/server"
+	"ride_plus/internal/constant"
+	appErr "ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
+	"ride_plus/internal/module"
+	custCas "ride_plus/platform/casbin"
 	"strings"
-	"template/internal/adapter/http/rest/server"
-	"template/internal/constant"
-	appErr "template/internal/constant/errors"
-	"template/internal/constant/model"
-	"template/internal/module"
-	custCas "template/platform/casbin"
+
+	"github.com/casbin/casbin/v2"
+	"github.com/gin-gonic/gin"
 )
 
 type authHandler struct {

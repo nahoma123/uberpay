@@ -5,18 +5,18 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	compHandler "template/internal/adapter/http/rest/server/company"
-	"template/internal/adapter/http/rest/server/image"
-	usrHandler "template/internal/adapter/http/rest/server/user"
-	"template/internal/adapter/repository"
-	"template/internal/adapter/storage/persistence/company"
-	"template/internal/adapter/storage/persistence/user"
-	routing2 "template/internal/glue/routing"
-	usrUsecase "template/internal/module/user"
+	compHandler "ride_plus/internal/adapter/http/rest/server/company"
+	"ride_plus/internal/adapter/http/rest/server/image"
+	usrHandler "ride_plus/internal/adapter/http/rest/server/user"
+	"ride_plus/internal/adapter/repository"
+	"ride_plus/internal/adapter/storage/persistence/company"
+	"ride_plus/internal/adapter/storage/persistence/user"
+	routing2 "ride_plus/internal/glue/routing"
+	usrUsecase "ride_plus/internal/module/user"
 
-	compUsecase "template/internal/module/company"
+	compUsecase "ride_plus/internal/module/company"
 
-	utils "template/internal/constant/model/init"
+	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/gin-gonic/gin"
 )

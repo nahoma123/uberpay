@@ -2,10 +2,11 @@ package persistence
 
 import (
 	"context"
+	storage "ride_plus/internal/adapter/storage/persistence"
+	"ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
+
 	"gorm.io/gorm"
-	storage "template/internal/adapter/storage/persistence"
-	"template/internal/constant/errors"
-	"template/internal/constant/model"
 )
 
 type policyPersistence struct {

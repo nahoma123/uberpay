@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"template/internal/constant/errors"
-	"template/internal/constant/model"
+	"ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
 
 	"golang.org/x/crypto/bcrypt"
 )

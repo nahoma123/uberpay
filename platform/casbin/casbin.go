@@ -3,10 +3,10 @@ package casbin
 import (
 	"context"
 	"log"
-	"template/internal/constant"
-	"template/internal/constant/errors"
-	"template/internal/constant/model"
-	utils "template/internal/constant/model/init"
+	"ride_plus/internal/constant"
+	"ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
+	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/casbin/casbin/v2"
 	ut "github.com/go-playground/universal-translator"

@@ -2,13 +2,13 @@ package sms
 
 import (
 	"context"
-	storage "template/internal/adapter/storage/persistence"
-	"template/internal/constant"
-	"template/internal/constant/model"
-	"template/internal/module"
+	storage "ride_plus/internal/adapter/storage/persistence"
+	"ride_plus/internal/constant"
+	"ride_plus/internal/constant/model"
+	"ride_plus/internal/module"
 	"time"
 
-	utils "template/internal/constant/model/init"
+	utils "ride_plus/internal/constant/model/init"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"

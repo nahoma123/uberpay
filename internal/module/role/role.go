@@ -2,10 +2,10 @@ package role
 
 import (
 	"context"
-	storage "template/internal/adapter/storage/persistence"
-	"template/internal/constant"
-	"template/internal/constant/model"
-	utils "template/internal/constant/model/init"
+	storage "ride_plus/internal/adapter/storage/persistence"
+	"ride_plus/internal/constant"
+	"ride_plus/internal/constant/model"
+	utils "ride_plus/internal/constant/model/init"
 	"time"
 
 	ut "github.com/go-playground/universal-translator"

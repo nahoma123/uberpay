@@ -1,7 +1,7 @@
 package init
 
 import (
-	storage "template/internal/adapter/storage/persistence"
+	storage "ride_plus/internal/adapter/storage/persistence"
 	"time"
 
 	ut "github.com/go-playground/universal-translator"

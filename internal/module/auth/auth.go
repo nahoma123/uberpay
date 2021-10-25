@@ -3,13 +3,13 @@ package auth
 import (
 	"context"
 	"fmt"
-	"template/internal/adapter/storage/persistence/user"
-	"template/internal/constant/errors"
-	"template/internal/constant/model"
-	"template/internal/module"
+	"ride_plus/internal/adapter/storage/persistence/user"
+	"ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
+	"ride_plus/internal/module"
 	"time"
 
-	utils "template/internal/constant/model/init"
+	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"

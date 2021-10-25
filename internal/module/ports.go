@@ -2,8 +2,9 @@ package module
 
 import (
 	"context"
+	"ride_plus/internal/constant/model"
+
 	uuid "github.com/satori/go.uuid"
-	"template/internal/constant/model"
 )
 
 // UserUsecase interface contains function of business logic for domian USer

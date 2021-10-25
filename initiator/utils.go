@@ -3,10 +3,10 @@ package initiator
 import (
 	"log"
 	"os"
+	"ride_plus/internal/constant"
+	"ride_plus/internal/constant/model"
+	utils "ride_plus/internal/constant/model/init"
 	"strconv"
-	"template/internal/constant"
-	"template/internal/constant/model"
-	utils "template/internal/constant/model/init"
 	"time"
 
 	"gorm.io/driver/postgres"

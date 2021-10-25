@@ -1,16 +1,17 @@
 package policy
 
 import (
-	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 	"net/http"
 	"os"
+	"ride_plus/internal/adapter/http/rest/server"
+	"ride_plus/internal/constant"
+	custErr "ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
+	"ride_plus/platform/casbin"
 	"strings"
-	"template/internal/adapter/http/rest/server"
-	"template/internal/constant"
-	custErr "template/internal/constant/errors"
-	"template/internal/constant/model"
-	"template/platform/casbin"
+
+	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 // policyHandler defines all the things necessary for users handlers

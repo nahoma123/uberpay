@@ -2,20 +2,21 @@ package company
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+	"ride_plus/internal/adapter/http/rest/server"
+	"ride_plus/internal/adapter/http/rest/server/image"
+	"ride_plus/internal/constant"
+	custErr "ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/model"
+	"ride_plus/internal/module"
 	"strings"
-	"template/internal/adapter/http/rest/server"
-	"template/internal/adapter/http/rest/server/image"
-	"template/internal/constant"
-	custErr "template/internal/constant/errors"
-	"template/internal/constant/model"
-	"template/internal/module"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 // companyHandler defines all the things necessary for company handlers
@@ -62,7 +63,7 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	//puts types of hashing algorithm with image hash separating by _ (eg a: by a_ alg type=a)
 	hash_rep := strings.Replace(hash, ":", "_", -1)
 	imageId := hash_rep
-	image.Name = imageId+extension
+	image.Name = imageId + extension
 	image.Ext = extension
 	//finds the original input form image dimension
 	width, height := com.store.GetImageDimension(image.ImageFile)
@@ -77,7 +78,7 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	}
 
 	m, err := com.store.Resize(image.ImageFile, 600, 600)
-	rnimg, err := com.store.FileInfo(extension,m)
+	rnimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
 		constant.ResponseJson(ctx, err, http.StatusBadRequest)
 		return
@@ -99,12 +100,12 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	image.CreatedAt = time.Now()
 	image.UpdatedAt = time.Now() //this is might be changed later when updated put request comes from client
 	//thumbnail image format
-	thumbnail.Name = "thumbnail_" + imageId+extension
+	thumbnail.Name = "thumbnail_" + imageId + extension
 	thumbnail.Hash = "thumbnail_" + imageId
 	thumbnail.Ext = extension
 	thumbnail.Mime = image.Mime
 	m, err = com.store.Resize(image.ImageFile, 156, 156)
-	rtimg, err := com.store.FileInfo(extension,m)
+	rtimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
 		constant.ResponseJson(ctx, err, http.StatusBadRequest)
 		return
@@ -121,12 +122,12 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	thumbnail.FormatType = "thumbnail"
 	thumbnail.Url = "/uploads/" + thumbnail.Hash + extension
 	//small image format
-	small.Name = "small_" + imageId+extension
+	small.Name = "small_" + imageId + extension
 	small.Hash = "small_" + imageId
 	small.Ext = extension
 	small.Mime = image.Mime
 	m, err = com.store.Resize(image.ImageFile, 500, 500)
-	rsimg, err := com.store.FileInfo(extension,m)
+	rsimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
 		constant.ResponseJson(ctx, err, http.StatusBadRequest)
 		return
@@ -154,7 +155,7 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 		return
 	}
 	//save normal image at server assets/images/normal directory
-	 err = com.SaveFile(image.ImageFile, "normal", image.Name, 600, 600)
+	err = com.SaveFile(image.ImageFile, "normal", image.Name, 600, 600)
 	fmt.Println("error ", err)
 	if err != nil {
 		constant.ResponseJson(ctx, err, http.StatusBadRequest)
@@ -192,8 +193,8 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 		return
 	}
 	hash_rep := strings.Replace(hash, ":", "_", -1)
-	imageId:=hash_rep
-	image.Name = imageId+extension
+	imageId := hash_rep
+	image.Name = imageId + extension
 	image.Ext = extension
 	width, height := com.store.GetImageDimension(image.ImageFile)
 	if width < 600 || height < 600 {
@@ -206,7 +207,7 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 		return
 	}
 	m, err := com.store.Resize(image.ImageFile, 600, 600)
-	rnimg, err := com.store.FileInfo(extension,m)
+	rnimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
 		constant.ResponseJson(ctx, err, http.StatusBadRequest)
 		return
@@ -228,12 +229,12 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	image.CreatedAt = time.Now()
 	image.UpdatedAt = time.Now() //this is might be changed later when updated put request comes from client
 	//thumbnail image format
-	thumbnail.Name = "thumbnail_" + imageId+extension
+	thumbnail.Name = "thumbnail_" + imageId + extension
 	thumbnail.Hash = "thumbnail_" + image.Hash
 	thumbnail.Ext = extension
 	thumbnail.Mime = image.Mime
 	m, err = com.store.Resize(image.ImageFile, 156, 156)
-	rtimg, err := com.store.FileInfo(extension,m)
+	rtimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
 		constant.ResponseJson(ctx, err, http.StatusBadRequest)
 		return
@@ -250,13 +251,13 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	thumbnail.FormatType = "thumbnail"
 	thumbnail.Url = "/uploads/" + thumbnail.Hash + extension
 	//small image format
-	small.Name = "small_" +imageId+extension
+	small.Name = "small_" + imageId + extension
 	small.Hash = "small_" + image.Hash
 	small.Ext = extension
 	small.Mime = image.Mime
 
 	m, err = com.store.Resize(image.ImageFile, 300, 300)
-	rsimg, err := com.store.FileInfo(extension,m)
+	rsimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
 		constant.ResponseJson(ctx, err, http.StatusBadRequest)
 		return
@@ -264,7 +265,7 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 
 	rsInfo, err := rsimg.Stat()
 	fmt.Println("line 117 error ", err)
-	fmt.Println("size ",rsInfo.Size())
+	fmt.Println("size ", rsInfo.Size())
 	if err != nil {
 		constant.ResponseJson(ctx, err, http.StatusBadRequest)
 		return
@@ -405,38 +406,38 @@ func (com companyHandler) DeleteCompany(c *gin.Context) {
 	}
 	constant.ResponseJson(c, "company Deleted", http.StatusOK)
 }
-func (n companyHandler) SaveFile(f *multipart.FileHeader, format, path string, rwidth, rheiht uint) (error) {
+func (n companyHandler) SaveFile(f *multipart.FileHeader, format, path string, rwidth, rheiht uint) error {
 	fp := filepath.Join("assets", "images", format, path)
-	fmt.Println("path join ",fp)
+	fmt.Println("path join ", fp)
 	m, err := n.store.Resize(f, rwidth, rheiht)
-	fmt.Println("line 411 error ",err)
+	fmt.Println("line 411 error ", err)
 	if err != nil {
-		return  err
+		return err
 	}
 	_, err = n.store.Save(fp, m)
-	fmt.Println("line 416 error ",err)
+	fmt.Println("line 416 error ", err)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (n companyHandler) UpdateFile(f *multipart.FileHeader, format, path string, rwidth, rheiht uint) (error) {
+func (n companyHandler) UpdateFile(f *multipart.FileHeader, format, path string, rwidth, rheiht uint) error {
 	fp := filepath.Join("assets", "images", format, path)
-	fmt.Println("path join ",fp)
+	fmt.Println("path join ", fp)
 	m, err := n.store.Resize(f, rwidth, rheiht)
-	fmt.Println("line 411 error ",err)
+	fmt.Println("line 411 error ", err)
 	if err != nil {
-		return  err
+		return err
 	}
-	p:=n.store.FullPath(fp)
-	fmt.Println("fullpath ",p)
+	p := n.store.FullPath(fp)
+	fmt.Println("fullpath ", p)
 	err = os.Remove(p)
-	fmt.Println("error remove ",err)
+	fmt.Println("error remove ", err)
 	if err != nil {
 		return err
 	}
 	_, err = n.store.Save(fp, m)
-	fmt.Println("line 416 error ",err)
+	fmt.Println("line 416 error ", err)
 	if err != nil {
 		return err
 	}
