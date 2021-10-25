@@ -3,8 +3,10 @@ package initiator
 import (
 	"log"
 	"os"
+	"strconv"
 	"template/internal/constant"
 	"template/internal/constant/model"
+	utils "template/internal/constant/model/init"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -12,7 +14,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func DbInit() *gorm.DB {
+func GetUtils() (utils.Utils, error) {
 	DATABASE_URL, err := constant.DbConnectionString()
 	if err != nil {
 		log.Fatal("database connection failed!")
@@ -44,5 +46,19 @@ func DbInit() *gorm.DB {
 		&model.Image{},
 		&model.ImageFormat{},
 	)
-	return conn
+
+	trans, validate, err := GetValidation()
+	if err != nil {
+		log.Fatal("error ", err)
+	}
+
+	duration, _ := strconv.Atoi(os.Getenv("timeout"))
+	timeoutContext := time.Duration(duration) * time.Second
+
+	return utils.Utils{
+		Timeout:     timeoutContext,
+		Translator:  trans,
+		GoValidator: validate,
+		Conn:        conn,
+	}, nil
 }

@@ -1,43 +1,19 @@
 package initiator
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
-	"time"
-
-	utils "template/internal/constant/model/init"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
 func Initialize() {
-	// load .env file
-	err := godotenv.Load("./../../.env")
-	fmt.Println("err ", err, "os host ", os.Getenv("DB_USER"))
+
+	common, err := GetUtils()
 	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	trans, validate, err := GetValidation()
-	if err != nil {
-		log.Fatal("error ", err)
-	}
-
-	dbConn := DbInit()
-
-	duration, _ := strconv.Atoi(os.Getenv("timeout"))
-	timeoutContext := time.Duration(duration) * time.Second
-
-	common := utils.Utils{
-		Conn:        dbConn,
-		GoValidator: validate,
-		Translator:  trans,
-		Timeout:     timeoutContext,
+		log.Fatal(err)
 	}
 
 	router := gin.Default()
