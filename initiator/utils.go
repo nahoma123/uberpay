@@ -9,9 +9,12 @@ import (
 	"strconv"
 	"time"
 
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"github.com/casbin/casbin/v2"
 )
 
 func GetUtils() (utils.Utils, error) {
@@ -37,7 +40,6 @@ func GetUtils() (utils.Utils, error) {
 	}
 	conn.AutoMigrate(
 		&model.User{},
-		&model.CasbinRule{},
 		&model.PushedNotification{},
 		&model.EmailNotification{},
 		&model.SMS{},
@@ -54,11 +56,30 @@ func GetUtils() (utils.Utils, error) {
 
 	duration, _ := strconv.Atoi(os.Getenv("timeout"))
 	timeoutContext := time.Duration(duration) * time.Second
+	enforser := NewEnforcer(conn, authModel)
 
 	return utils.Utils{
 		Timeout:     timeoutContext,
 		Translator:  trans,
 		GoValidator: validate,
 		Conn:        conn,
+		Enforcer:    enforser,
 	}, nil
+}
+
+// NewEnforcer creates an enforcer via file or DB.
+func NewEnforcer(conn *gorm.DB, model string) *casbin.Enforcer {
+	adapter, err := gormadapter.NewAdapterByDB(conn)
+	if err != nil {
+		log.Fatal("error ", err)
+	}
+
+	enforcer, err := casbin.NewEnforcer(model, adapter)
+	if err != nil {
+		log.Fatal("error ", err)
+	}
+
+	enforcer.EnableAutoSave(true)
+	enforcer.LoadPolicy()
+	return enforcer
 }

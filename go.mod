@@ -4,8 +4,7 @@ go 1.16
 
 require (
 	github.com/appleboy/go-fcm v0.1.5
-	github.com/casbin/casbin/v2 v2.28.3
-	github.com/casbin/gorm-adapter/v3 v3.2.12
+	github.com/casbin/casbin/v2 v2.37.4
 	github.com/corona10/goimagehash v1.0.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.4
@@ -14,18 +13,22 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.4.2
-	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/mail.v2 v2.3.1
-	gorm.io/driver/postgres v1.1.1
+	gorm.io/driver/postgres v1.1.2
 	gorm.io/gorm v1.21.15
 )
 
 require (
+	github.com/casbin/casbin v1.9.1 // indirect
+	github.com/casbin/gorm-adapter v1.0.0
+	github.com/casbin/gorm-adapter/v3 v3.4.4
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
+	github.com/jinzhu/gorm v1.9.16 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
