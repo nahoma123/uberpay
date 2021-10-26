@@ -24,7 +24,7 @@ func AuthInit(utils utils.Utils, router *gin.RouterGroup) {
 	roleUsecase := roleUsecase.RoleInitialize(rolePersistent, utils)
 	roleHandler := rlHandler.NewRoleHandler(roleUsecase, utils)
 
-	casbinAuth := authorization.NewEnforcer(utils.Conn)
+	casbinAuth := authorization.NewEnforcer(utils.Conn, authModel)
 	permHandler := permHandler.PolicyInit(casbinAuth)
 
 	usrPersistence := user.UserInit(utils)

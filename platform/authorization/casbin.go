@@ -27,13 +27,13 @@ type casbinAuthorizer struct {
 }
 
 // NewEnforcer creates an enforcer via file or DB.
-func NewEnforcer(conn *gorm.DB) CasbinAuth {
+func NewEnforcer(conn *gorm.DB, model string) CasbinAuth {
 	adapter, err := gormadapter.NewAdapterByDB(conn)
 	if err != nil {
 		log.Fatal("error ", err)
 	}
 
-	enforcer, err := casbin.NewEnforcer("rbac_model.conf", adapter)
+	enforcer, err := casbin.NewEnforcer(model, adapter)
 	if err != nil {
 		log.Fatal("error ", err)
 	}
