@@ -15,20 +15,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type service struct {
+type authservice struct {
 	userPersistence user.UserPersistence
 	jwtManager      JWTManager
 	contextTimeout  time.Duration
 }
 
 func Initialize(userPersistence user.UserPersistence, jwtManager JWTManager, utils utils.Utils) module.LoginUseCase {
-	return &service{
+	return &authservice{
 		userPersistence: userPersistence,
 		jwtManager:      jwtManager,
 		contextTimeout:  utils.Timeout,
 	}
 }
-func (s service) GetClaims(token string) (*model.UserClaims, error) {
+func (s authservice) GetClaims(token string) (*model.UserClaims, error) {
 	claims, err := s.jwtManager.Verify(token)
 	if err != nil {
 		return nil, errors.ErrInvalidToken
@@ -36,7 +36,7 @@ func (s service) GetClaims(token string) (*model.UserClaims, error) {
 	return claims, nil
 }
 
-func (s service) Login(c context.Context, phoneNumber, password string) (*model.LoginResponse, error) {
+func (s authservice) Login(c context.Context, phoneNumber, password string) (*model.LoginResponse, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
 	u := model.User{Phone: phoneNumber}

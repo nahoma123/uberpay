@@ -1,4 +1,4 @@
-package role
+package auth
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"os"
 	"ride_plus/internal/constant"
 	"ride_plus/internal/constant/errors"
-	"ride_plus/internal/module/role"
+	"ride_plus/internal/module/auth"
 	"strings"
 
 	model "ride_plus/internal/constant/model/dbmodels"
@@ -25,12 +25,12 @@ type RolesHandler interface {
 	DeleteRole(c *gin.Context)
 }
 type rolesHandler struct {
-	roleUseCase role.UseCase
+	roleUseCase auth.RoleUseCase
 	validate    *validator.Validate
 	trans       ut.Translator
 }
 
-func NewRoleHandler(useCase role.UseCase, utils utils.Utils) RolesHandler {
+func NewRoleHandler(useCase auth.RoleUseCase, utils utils.Utils) RolesHandler {
 	return &rolesHandler{roleUseCase: useCase, trans: utils.Translator, validate: utils.GoValidator}
 }
 func (n rolesHandler) RoleMiddleWare(c *gin.Context) {

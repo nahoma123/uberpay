@@ -8,8 +8,8 @@ import (
 	"ride_plus/internal/constant"
 	appErr "ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodels"
+	utils "ride_plus/internal/constant/model/init"
 	"ride_plus/internal/module"
-	custCas "ride_plus/platform/casbin"
 	"strings"
 
 	"github.com/casbin/casbin/v2"
@@ -18,13 +18,13 @@ import (
 
 type authHandler struct {
 	authUseCase module.LoginUseCase
-	casbinAuth  custCas.CasbinAuth
+	utils       utils.Utils
 }
 
-func NewAuthHandler(authUseCase module.LoginUseCase, perm custCas.CasbinAuth) server.AuthHandler {
+func NewAuthHandler(authUseCase module.LoginUseCase, utils utils.Utils) server.AuthHandler {
 	return &authHandler{
 		authUseCase: authUseCase,
-		casbinAuth:  perm,
+		utils:       utils,
 	}
 }
 
