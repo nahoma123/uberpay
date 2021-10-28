@@ -67,5 +67,4 @@ type CompanyHandler interface {
 	UpdateCompanyImage(ctx *gin.Context)
 	CompanyImages(ctx *gin.Context)
 	SaveFile(f *multipart.FileHeader, format, path string, rwidth, rheiht uint) error
-	CompanyMiddleWare(c *gin.Context)
 }

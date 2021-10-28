@@ -32,17 +32,6 @@ func CompanyInit(cmp module.CompanyUsecase, store image.Storage) server.CompanyH
 		store:          store,
 	}
 }
-func (com companyHandler) CompanyMiddleWare(c *gin.Context) {
-	compX := &model.Company{}
-	err := c.Bind(compX)
-	fmt.Println("error bind ", err)
-	if err != nil {
-		constant.ResponseJson(c, custErr.NewErrorResponse(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
-		return
-	}
-	c.Set("x-company", *compX)
-	c.Next()
-}
 
 func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	image := &model.Image{}
@@ -345,9 +334,14 @@ func (com companyHandler) Companies(c *gin.Context) {
 	constant.ResponseJson(c, successData, http.StatusOK)
 }
 func (com companyHandler) StoreCompany(c *gin.Context) {
-	comp := c.MustGet("x-company").(model.Company)
+	comp := &model.Company{}
+	err := c.Bind(comp)
+	if err != nil {
+		constant.ResponseJson(c, custErr.NewErrorResponse(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
+		return
+	}
 	ctx := c.Request.Context()
-	successData, err := com.companyUsecase.StoreCompany(ctx, comp)
+	successData, err := com.companyUsecase.StoreCompany(ctx, *comp)
 	if err != nil {
 		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
 			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
