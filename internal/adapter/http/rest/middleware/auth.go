@@ -12,8 +12,6 @@ import (
 
 	appErr "ride_plus/internal/constant/errors"
 
-	"github.com/casbin/casbin/v2"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +24,7 @@ var actions = map[string]string{
 }
 
 type AuthMiddleware interface {
-	Authorizer(e *casbin.Enforcer) gin.HandlerFunc
+	Authorizer(permission string) gin.HandlerFunc
 	ExtractToken(r *http.Request) string
 }
 
@@ -43,7 +41,7 @@ func NewAuthMiddleware(authUseCase module.LoginUseCase, utils utils.Utils) AuthM
 }
 
 //Authorizer is a middleware for authorization
-func (n *authMiddleWare) Authorizer(e *casbin.Enforcer) gin.HandlerFunc {
+func (n *authMiddleWare) Authorizer(permission string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role := "anonymous"
 		token := n.ExtractToken(c.Request)
@@ -56,18 +54,20 @@ func (n *authMiddleWare) Authorizer(e *casbin.Enforcer) gin.HandlerFunc {
 				c.Set("x-companyid", claims.CompanyID)
 			}
 		}
-		err := e.LoadPolicy()
+		err := n.utils.Enforcer.LoadPolicy()
 		if err != nil {
 			log.Fatal("error ", err)
 		}
 		var c_id string
-		if claims.CompanyID == "" {
-			c_id = "*"
-		} else {
-			c_id = strings.TrimSpace(claims.CompanyID)
+		if claims != nil {
+			if claims.CompanyID == "" {
+				c_id = "*"
+			} else {
+				c_id = strings.TrimSpace(claims.CompanyID)
+			}
 		}
 
-		res, err := e.Enforce(role, c.Request.URL.Path, actions[c.Request.Method], c_id)
+		res, err := n.utils.Enforcer.Enforce(role, c.Request.URL.Path, actions[c.Request.Method], c_id)
 		fmt.Println("enforce error ", err, "res ", res)
 		if err != nil {
 			err := appErr.NewErrorResponse(appErr.ErrPermissionPermissionNotFound)

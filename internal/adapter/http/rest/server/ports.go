@@ -29,6 +29,7 @@ type UserHandler interface {
 	GetCompanyUsers(c *gin.Context)
 	GetCompanyUserByID(c *gin.Context)
 	UserMiddleWare(c *gin.Context)
+	RegisterUser(c *gin.Context)
 }
 
 // PolicyHandler contains a function of handlers for the domain file

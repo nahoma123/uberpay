@@ -36,7 +36,7 @@ func InitNotification(utils utils.Utils, router *gin.RouterGroup) {
 	publisherHandler := publisher3.NewNotificationHandler(publisherUsecase, utils)
 
 	//notification
-	routing2.EmailRoutes(router, emailHandler)
-	routing2.SmsRoutes(router, smsHandler)
-	routing2.PublisherRoutes(router, publisherHandler)
+	routing2.EmailRoutes(router, AuthMiddleware(utils), emailHandler)
+	routing2.SmsRoutes(router, AuthMiddleware(utils), smsHandler)
+	routing2.PublisherRoutes(router, AuthMiddleware(utils), publisherHandler)
 }

@@ -119,6 +119,28 @@ func (uh userHandler) StoreUser(c *gin.Context) {
 	}
 	constant.ResponseJson(c, *successData, http.StatusOK)
 }
+
+func (uh userHandler) RegisterUser(c *gin.Context) {
+	usr := c.MustGet("x-user").(model.User)
+	ctx := c.Request.Context()
+	successData, err := uh.userUsecase.StoreUser(ctx, usr)
+	if err != nil {
+		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
+			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
+			errValue := custErr.ErrorModel{
+				ErrorCode:        custErr.ErrCodes[custErr.ErrInvalidField],
+				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
+				ErrorMessage:     e,
+			}
+			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			return
+		}
+		constant.ResponseJson(c, custErr.NewErrorResponse(err), http.StatusBadRequest)
+		return
+	}
+	constant.ResponseJson(c, *successData, http.StatusOK)
+}
+
 func (uh userHandler) AddUserToCompany(c *gin.Context) {
 	ctx := c.Request.Context()
 	company_user := model.CompanyUser{}

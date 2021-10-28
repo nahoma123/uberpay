@@ -1,7 +1,13 @@
 {
     "go.inferGopath": false,
     "files.exclude": {
-        "internal/glue/routing": true,
-        "internal/module/user": true
+        "platform":true,
+        "internal/plat/routing": true,
+        "internal/module/user": true,
+        "cmd":true,
+        "assets":true,
+        "config":true,
+        "go.sum":true,
+        "README.md":true
     }
 }

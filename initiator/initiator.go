@@ -17,7 +17,7 @@ func Initialize() {
 	}
 
 	router := gin.Default()
-	router.Use(corsMW())
+	// router.Use(corsMW())
 
 	v1 := router.Group("/v1")
 

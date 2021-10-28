@@ -17,6 +17,15 @@ const (
 	authModel = "config/rbac_model.conf"
 )
 
+func AuthMiddleware(utils utils.Utils) middleware.AuthMiddleware {
+	usrPersistence := user.UserInit(utils)
+	jwtManager := authUsecase.NewJWTManager("secret")
+	loginUseCase := authUsecase.Initialize(usrPersistence, *jwtManager, utils)
+
+	authMiddleWare := middleware.NewAuthMiddleware(loginUseCase, utils)
+	return authMiddleWare
+}
+
 func AuthInit(utils utils.Utils, router *gin.RouterGroup) {
 	rolePersistent := authPersistence.RoleInit(utils)
 	roleUsecase := roleUsecase.RoleInitialize(rolePersistent, utils)
@@ -28,12 +37,7 @@ func AuthInit(utils utils.Utils, router *gin.RouterGroup) {
 	authUsecases := authUsecase.Initialize(usrPersistence, *jwtManager, utils)
 	authHandlers := authHandler.NewAuthHandler(authUsecases, utils)
 
-	loginUseCase := authUsecase.Initialize(usrPersistence, *jwtManager, utils)
-
-	authMiddleWare := middleware.NewAuthMiddleware(loginUseCase, utils)
-
-	router.Use(authMiddleWare.Authorizer(utils.Enforcer))
-	routing2.RoleRoutes(router, roleHandler)
+	routing2.RoleRoutes(router, AuthMiddleware(utils), roleHandler)
 	// routing2.PolicyRoutes(router, permHandler)
-	routing2.AuthRoutes(router, authHandlers)
+	routing2.AuthRoutes(router, AuthMiddleware(utils), authHandlers)
 }

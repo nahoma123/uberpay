@@ -1,13 +1,14 @@
 package routing
 
 import (
+	"ride_plus/internal/adapter/http/rest/middleware"
 	"ride_plus/internal/adapter/http/rest/server"
 
 	"github.com/gin-gonic/gin"
 )
 
 // CompanyRoutes registers users companies
-func CompanyRoutes(grp *gin.RouterGroup, compHandler server.CompanyHandler) {
+func CompanyRoutes(grp *gin.RouterGroup, authMiddleware middleware.AuthMiddleware, compHandler server.CompanyHandler) {
 	grp.POST("/companies", compHandler.StoreCompany)
 	grp.GET("/companies", compHandler.Companies)
 	grp.GET("/companies/:company-id", compHandler.CompanyByID)

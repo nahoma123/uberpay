@@ -46,6 +46,6 @@ func CompUserInit(utils utils.Utils, router *gin.RouterGroup) {
 	}
 	compHandler := compHandler.CompanyInit(compUsecase, *store)
 
-	routing2.CompanyRoutes(router, compHandler)
-	routing2.UserRoutes(router, usrHandler)
+	routing2.CompanyRoutes(router, AuthMiddleware(utils), compHandler)
+	routing2.UserRoutes(router, AuthMiddleware(utils), usrHandler)
 }
