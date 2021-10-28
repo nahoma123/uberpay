@@ -2,7 +2,7 @@ package storage
 
 import (
 	"context"
-	model "ride_plus/internal/constant/model/dbmodels"
+	model "ride_plus/internal/constant/model/dbmodel"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
@@ -19,8 +19,8 @@ type RolePersistence interface {
 	MigrateRole() error
 }
 
-//PermissionPersistence contains all services for PermissionPersistence interface
-type PermissionPersistence interface {
+//PolicyPersistence contains all services for PolicyPersistence interface
+type PolicyPersistence interface {
 	Policy(ctx context.Context, id uint) (*model.CasbinRule, error)
 	Policies(ctx context.Context) ([]model.CasbinRule, error)
 	UpdatePolicy(ctx context.Context, role model.CasbinRule) (*model.CasbinRule, error)
@@ -28,6 +28,16 @@ type PermissionPersistence interface {
 	StorePolicy(ctx context.Context, role model.CasbinRule) (*model.CasbinRule, error)
 	MigratePolicy(c context.Context) error
 }
+
+// //PermissionPersistence contains all services for PermissionPersistence interface
+// type PermissionPersistence interface {
+// 	Policy(ctx context.Context, id uint) (*model.CasbinRule, error)
+// 	Policies(ctx context.Context) ([]model.CasbinRule, error)
+// 	UpdatePolicy(ctx context.Context, role model.CasbinRule) (*model.CasbinRule, error)
+// 	RemovePolicy(ctx context.Context, id uint) error
+// 	StorePolicy(ctx context.Context, role model.CasbinRule) (*model.CasbinRule, error)
+// 	MigratePolicy(c context.Context) error
+// }
 
 //EmailPersistence contains all services for notification interface
 type EmailPersistence interface {

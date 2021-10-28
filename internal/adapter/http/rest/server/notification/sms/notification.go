@@ -11,7 +11,7 @@ import (
 	"ride_plus/internal/module"
 	"strings"
 
-	model "ride_plus/internal/constant/model/dbmodels"
+	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/gin-gonic/gin"

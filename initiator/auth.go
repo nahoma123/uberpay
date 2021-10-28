@@ -1,6 +1,7 @@
 package initiator
 
 import (
+	"ride_plus/internal/adapter/http/rest/middleware"
 	authHandler "ride_plus/internal/adapter/http/rest/server/auth"
 	authPersistence "ride_plus/internal/adapter/storage/persistence/auth"
 	"ride_plus/internal/adapter/storage/persistence/user"
@@ -27,9 +28,10 @@ func AuthInit(utils utils.Utils, router *gin.RouterGroup) {
 	authUsecases := authUsecase.Initialize(usrPersistence, *jwtManager, utils)
 	authHandlers := authHandler.NewAuthHandler(authUsecases, utils)
 
+	authMiddleWare := middleware.NewAuthMiddleware(authUsecase, utils)
+
 	router.Use(authHandlers.Authorizer(utils.Enforcer))
 	routing2.RoleRoutes(router, roleHandler)
 	// routing2.PolicyRoutes(router, permHandler)
 	routing2.AuthRoutes(router, authHandlers)
-
 }

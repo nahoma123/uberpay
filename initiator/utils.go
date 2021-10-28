@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"ride_plus/internal/constant"
-	model "ride_plus/internal/constant/model/dbmodels"
+	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 	"strconv"
 	"time"

@@ -8,7 +8,7 @@ import (
 	"ride_plus/internal/module"
 	"time"
 
-	model "ride_plus/internal/constant/model/dbmodels"
+	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/dgrijalva/jwt-go"

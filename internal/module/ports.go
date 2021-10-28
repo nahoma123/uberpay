@@ -2,7 +2,8 @@ package module
 
 import (
 	"context"
-	model "ride_plus/internal/constant/model/dbmodels"
+	model "ride_plus/internal/constant/model/dbmodel"
+	dto "ride_plus/internal/constant/model/dto"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -69,4 +70,9 @@ type CompanyUsecase interface {
 type LoginUseCase interface {
 	Login(c context.Context, username, password string) (*model.LoginResponse, error)
 	GetClaims(token string) (*model.UserClaims, error)
+}
+
+type PermissionUseCase interface {
+	GetUserPermissions(prm dto.Permission) []dto.Permission
+	IsAuthorized(userId uuid.UUID, companyId uuid.UUID, obj string, action string) (bool, error)
 }

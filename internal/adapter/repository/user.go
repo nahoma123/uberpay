@@ -2,7 +2,7 @@ package repository
 
 import (
 	"ride_plus/internal/constant/errors"
-	model "ride_plus/internal/constant/model/dbmodels"
+	model "ride_plus/internal/constant/model/dbmodel"
 
 	"golang.org/x/crypto/bcrypt"
 )

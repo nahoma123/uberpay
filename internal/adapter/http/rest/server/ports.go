@@ -1,13 +1,12 @@
 package server
 
 import (
-	"github.com/casbin/casbin/v2"
-	"github.com/gin-gonic/gin"
 	"mime/multipart"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler interface {
-	Authorizer(e *casbin.Enforcer) gin.HandlerFunc
 	Login(c *gin.Context)
 }
 

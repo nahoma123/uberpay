@@ -3,7 +3,7 @@ package auth
 import (
 	"fmt"
 	"ride_plus/internal/constant/errors"
-	model "ride_plus/internal/constant/model/dbmodels"
+	model "ride_plus/internal/constant/model/dbmodel"
 
 	"github.com/dgrijalva/jwt-go"
 )

@@ -7,7 +7,7 @@ import (
 	"ride_plus/internal/adapter/http/rest/server"
 	"ride_plus/internal/constant"
 	"ride_plus/internal/constant/errors"
-	model "ride_plus/internal/constant/model/dbmodels"
+	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 	"ride_plus/internal/module"
 	"strings"

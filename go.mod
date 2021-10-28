@@ -22,13 +22,10 @@ require (
 )
 
 require (
-	github.com/casbin/casbin v1.9.1 // indirect
-	github.com/casbin/gorm-adapter v1.0.0
 	github.com/casbin/gorm-adapter/v3 v3.4.4
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/jinzhu/gorm v1.9.16 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
