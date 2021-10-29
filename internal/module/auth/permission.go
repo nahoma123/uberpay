@@ -5,7 +5,7 @@ import (
 	"ride_plus/internal/module"
 	"time"
 
-	"ride_plus/internal/constant/model/dto"
+	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/casbin/casbin/v2"
@@ -24,7 +24,7 @@ func InitializePermission(utils utils.Utils) module.PermissionUseCase {
 	}
 }
 
-func (srv permissionservice) GetUserPermissions(prm dto.Permission) []dto.Permission {
+func (srv permissionservice) GetUserPermissions(prm model.Permission) []model.Permission {
 	fmt.Println(srv.enforcer.GetPermissionsForUserInDomain(prm.UserId, prm.CompanyId))
 	return nil
 }

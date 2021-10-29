@@ -3,6 +3,7 @@ package errors
 import "errors"
 
 var (
+	ErrAuthorizationTokenNotProvided  = errors.New("authorization token not provided")
 	ErrUnableToMigrate                = errors.New("Unable to migrate")
 	ErrUnableToGetUrl                 = errors.New("Unable to get url")
 	ErrRecordNotFound                 = errors.New("record not found")
@@ -82,6 +83,7 @@ var (
 
 // Descriptions error description
 var Descriptions = map[error]string{
+	ErrAuthorizationTokenNotProvided:  "authorization token not provided",
 	ErrUnknown:                        "Unknown  error",
 	ErrForgotEmail:                    "Email is forgotten",
 	ErrInputValidation:                "Error input validation",
@@ -136,6 +138,7 @@ var Descriptions = map[error]string{
 var StatusCodes = map[error]int{
 	ErrInvalidRequest:                 400,
 	ErrUnauthorizedClient:             401,
+	ErrAuthorizationTokenNotProvided:  401,
 	ErrAccessDenied:                   403,
 	ErrUnsupportedResponseType:        401,
 	ErrInvalidScope:                   400,
@@ -236,4 +239,5 @@ var ErrCodes = map[error]int{
 	ErrRecordNotFound:                 4044,
 	ErrUnSupportedSize:                4045,
 	ErrFieldAlreadyExist:              4046,
+	ErrAuthorizationTokenNotProvided:  4047,
 }

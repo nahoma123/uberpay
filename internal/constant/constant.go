@@ -3,11 +3,11 @@ package constant
 import (
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	"os"
-	"strings"
 )
 
 const (
@@ -27,12 +27,7 @@ func StructValidator(structName interface{}, validate *validator.Validate, trans
 	errV := validate.Struct(structName)
 	if errV != nil {
 		errs := errV.(validator.ValidationErrors)
-		valErr := errs.Translate(trans)
-		for key, _ := range valErr {
-			value := strings.TrimSpace(valErr[key])
-			value += " " + os.Getenv("ErrSecretKey")
-			return errors.New(value)
-		}
+		return errors.New(errs[0].Translate(trans))
 	}
 	return nil
 }

@@ -3,7 +3,6 @@ package module
 import (
 	"context"
 	model "ride_plus/internal/constant/model/dbmodel"
-	dto "ride_plus/internal/constant/model/dto"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -73,6 +72,6 @@ type LoginUseCase interface {
 }
 
 type PermissionUseCase interface {
-	GetUserPermissions(prm dto.Permission) []dto.Permission
+	GetUserPermissions(prm model.Permission) []model.Permission
 	IsAuthorized(userId uuid.UUID, companyId uuid.UUID, obj string, action string) (bool, error)
 }

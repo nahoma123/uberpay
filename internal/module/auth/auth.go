@@ -59,12 +59,6 @@ func (s authservice) Login(c context.Context, phoneNumber, password string) (*mo
 		Phone: phoneNumber,
 		Role:  usr.RoleName,
 	}
-	companyUser, err := s.userPersistence.GetCompanyUserByID(ctx, usr.ID)
-	fmt.Println("error ", err)
-	if err != nil {
-		return nil, err
-	}
-	claims.CompanyID = companyUser.CompanyID.String()
 	token, err := s.jwtManager.Generate(claims)
 	if err != nil {
 		return nil, errors.ErrGenerateToken

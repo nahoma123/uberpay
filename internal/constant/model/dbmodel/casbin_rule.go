@@ -10,3 +10,12 @@ type CasbinRule struct {
 	V4    string ` json:"v_4,omitempty"  gorm:"size:512;"    validate:"required"`
 	V5    string `json:"v_5,omitempty"   gorm:"size:512;"    validate:"required"`
 }
+
+type Permission struct {
+	ID        uint   `json:"id"`
+	UserId    string `gorm:"column:v0" json:"user_id"`
+	CompanyId string `gorm:"column:v1" json:"company,omitempty"`
+	Name      string `gorm:"column:v2" json:"name"`
+	Object    string `gorm:"column:v2" json:"object"`
+	Action    string `gorm:"column:v3" json:"description"`
+}

@@ -9,7 +9,7 @@ import (
 
 type User struct {
 	ID         uuid.UUID      `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	Username   string         `json:"username" validate:"required,min=3,max=40,regexp=^[a-zA-Z]*$"`
+	Username   string         `json:"username" validate:"required,min=3,max=40"`
 	Password   string         `json:"password" validate:"required,min=8"`
 	Phone      string         `json:"phone" validate:"required"`
 	FirstName  string         `json:"first_name" validate:"required"`
@@ -26,6 +26,7 @@ type CompanyUser struct {
 	UserID    uuid.UUID `json:"user_id" gorm:"primaryKey"`
 	CompanyID uuid.UUID `json:"company_id" gorm:"primaryKey" validate:"required"`
 	Role      string    `json:"role" validate:"required"`
+	Status    string    `json:"status" gorm:"default:'pending'"`
 }
 
 //type UserCompanyRole struct {
