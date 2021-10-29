@@ -1,4 +1,4 @@
-package initiator
+package domain
 
 import (
 	email3 "ride_plus/internal/adapter/http/rest/server/notification/email"

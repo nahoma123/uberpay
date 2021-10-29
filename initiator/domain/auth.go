@@ -1,4 +1,4 @@
-package initiator
+package domain
 
 import (
 	"ride_plus/internal/adapter/http/rest/middleware"
@@ -11,10 +11,6 @@ import (
 	roleUsecase "ride_plus/internal/module/auth"
 
 	"github.com/gin-gonic/gin"
-)
-
-const (
-	authModel = "config/rbac_model.conf"
 )
 
 func AuthMiddleware(utils utils.Utils) middleware.AuthMiddleware {

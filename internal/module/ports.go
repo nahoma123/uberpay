@@ -72,6 +72,9 @@ type LoginUseCase interface {
 }
 
 type PermissionUseCase interface {
-	GetUserPermissions(prm model.Permission) []model.Permission
-	IsAuthorized(userId uuid.UUID, companyId uuid.UUID, obj string, action string) (bool, error)
+	MigratePermissionsToCasbin() error
+	AddBulkPermissions(prms []model.Permission)
+	GetPermissions(prm model.Permission) []model.Permission
+	AddPermission(prm model.Permission) error
+	IsAuthorized(prm model.Permission) (bool, error)
 }

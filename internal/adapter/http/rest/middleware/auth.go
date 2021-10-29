@@ -59,7 +59,14 @@ func (n *authMiddleWare) Authorizer(prm string) gin.HandlerFunc {
 			return
 		}
 
-		claims, _ := n.authUseCase.GetClaims(token)
+		claims, err := n.authUseCase.GetClaims(token)
+		if err != nil {
+			err := appErr.NewErrorResponse(appErr.ErrInvalidAccessToken)
+			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrInvalidAccessToken])
+			c.AbortWithStatus(appErr.StatusCodes[appErr.ErrInvalidAccessToken])
+			return
+		}
+
 		if claims != nil {
 			role = claims.Role
 			c.Set("x-userid", claims.Subject)

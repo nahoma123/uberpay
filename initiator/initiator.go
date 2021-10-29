@@ -4,14 +4,24 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"ride_plus/initiator/domain"
+	"ride_plus/internal/constant"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
-func Initialize() {
+const (
+	authModel = "config/rbac_model.conf"
+)
 
-	common, err := GetUtils()
+func Initialize() {
+	DATABASE_URL, err := constant.DbConnectionString()
+	if err != nil {
+		log.Fatal("database connection failed!")
+	}
+
+	common, err := GetUtils(DATABASE_URL, authModel)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,9 +32,9 @@ func Initialize() {
 	v1 := router.Group("/v1")
 
 	// initialize domains
-	AuthInit(common, v1)
-	InitNotification(common, v1)
-	CompUserInit(common, v1)
+	domain.AuthInit(common, v1)
+	domain.InitNotification(common, v1)
+	domain.CompUserInit(common, v1)
 	router.Run(":" + os.Getenv("SERVER_PORT"))
 
 	logrus.WithFields(logrus.Fields{

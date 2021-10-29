@@ -9,7 +9,6 @@ import (
 	utils "ride_plus/internal/constant/model/init"
 
 	"github.com/casbin/casbin/v2"
-	uuid "github.com/satori/go.uuid"
 )
 
 type permissionservice struct {
@@ -24,11 +23,23 @@ func InitializePermission(utils utils.Utils) module.PermissionUseCase {
 	}
 }
 
-func (srv permissionservice) GetUserPermissions(prm model.Permission) []model.Permission {
+func (srv permissionservice) AddBulkPermissions(prms []model.Permission) {
+}
+
+func (srv permissionservice) AddPermission(prm model.Permission) error {
+	_, err := srv.enforcer.AddPolicy(prm.UserId, prm.CompanyId, prm.Object, prm.Action)
+	return err
+}
+
+func (srv permissionservice) MigratePermissionsToCasbin() error {
+	return nil
+}
+
+func (srv permissionservice) GetPermissions(prm model.Permission) []model.Permission {
 	fmt.Println(srv.enforcer.GetPermissionsForUserInDomain(prm.UserId, prm.CompanyId))
 	return nil
 }
 
-func (src permissionservice) IsAuthorized(userId uuid.UUID, companyId uuid.UUID, obj string, action string) (bool, error) {
+func (src permissionservice) IsAuthorized(prm model.Permission) (bool, error) {
 	return false, nil
 }

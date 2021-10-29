@@ -6,7 +6,7 @@
         "internal/module/user": true,
         "cmd":true,
         "assets":true,
-        "config":true,
+        // "config":true,
         "go.sum":true,
         "README.md":true
     }

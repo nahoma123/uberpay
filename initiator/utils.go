@@ -3,7 +3,6 @@ package initiator
 import (
 	"log"
 	"os"
-	"ride_plus/internal/constant"
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 	"strconv"
@@ -17,11 +16,8 @@ import (
 	"github.com/casbin/casbin/v2"
 )
 
-func GetUtils() (utils.Utils, error) {
-	DATABASE_URL, err := constant.DbConnectionString()
-	if err != nil {
-		log.Fatal("database connection failed!")
-	}
+func GetUtils(dbUrl string, authModel string) (utils.Utils, error) {
+
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
@@ -30,7 +26,7 @@ func GetUtils() (utils.Utils, error) {
 			Colorful:      true,        // Disable color
 		},
 	)
-	conn, err := gorm.Open(postgres.Open(DATABASE_URL), &gorm.Config{
+	conn, err := gorm.Open(postgres.Open(dbUrl), &gorm.Config{
 		SkipDefaultTransaction: true, //30% performance increases
 		Logger:                 newLogger,
 	})
