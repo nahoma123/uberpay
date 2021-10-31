@@ -7,6 +7,7 @@ import (
 	"ride_plus/internal/module"
 	"strings"
 
+	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 
 	appErr "ride_plus/internal/constant/errors"
@@ -142,4 +143,17 @@ func (n *authMiddleWare) ExtractToken(r *http.Request) string {
 		return strings.Split(bearerToken, " ")[1]
 	}
 	return ""
+}
+
+func (n *authMiddleWare) BindPermissionRequest() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		rlPermission := model.RolePermission{}
+		err := c.Bind(rlPermission)
+		if err != nil {
+			constant.ResponseJson(c, appErr.NewErrorResponse(appErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
+			return
+		}
+		c.Set("request", rlPermission)
+		c.Next()
+	}
 }

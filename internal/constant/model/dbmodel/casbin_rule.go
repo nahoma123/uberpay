@@ -11,11 +11,19 @@ type CasbinRule struct {
 	V5    string `json:"v_5,omitempty"   gorm:"size:512;"    validate:"required"`
 }
 
-type Permission struct {
-	ID        uint   `json:"id"`
-	UserId    string `gorm:"column:v0" json:"user_id"`
+type RolePermission struct {
+	ID        string `json:"-"`
+	Role      string `gorm:"column:v0" json:"role,omitempty"`
 	CompanyId string `gorm:"column:v1" json:"company,omitempty"`
-	Name      string `gorm:"column:v2" json:"name"`
-	Object    string `gorm:"column:v2" json:"object"`
-	Action    string `gorm:"column:v3" json:"description"`
+	UserId    string `json:"user_id,omitempty"`
+	Name      string `gorm:"column:v2" json:"name,omitempty"`
+	Object    string `gorm:"column:v2" json:"-"`
+	Action    string `gorm:"column:v3" json:"description,omitempty"`
+}
+
+type UserRole struct {
+	ID        string `json:"id"`
+	Role      string `gorm:"column:v1" json:"role"`
+	UserId    string `gorm:"column:v0" json:"user_id"`
+	CompanyId string `gorm:"column:v2" json:"company,omitempty"`
 }

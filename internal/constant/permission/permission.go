@@ -32,6 +32,7 @@ var PermissionActions = map[string]string{
 	CreateSystemRole:   Draft,
 	DraftCreateUser:    Create,
 	DraftCreateCompany: Update,
+	CreateCompany:      Create,
 }
 
 // if a permission has an associated permission for drafting data i.e

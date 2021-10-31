@@ -22,15 +22,6 @@ type UserUsecase interface {
 	GetCompanyUsers(ctx context.Context, companyID uuid.UUID) ([]model.CompanyUser, error)
 	GetCompanyUserByID(ctx context.Context, user_id uuid.UUID) (*model.CompanyUser, error)
 }
-type PolicyUseCase interface {
-	Policy(c context.Context, id uint) (*model.CasbinRule, error)
-	Policies(c context.Context) ([]model.CasbinRule, error)
-	UpdatePolicy(c context.Context, rule model.CasbinRule) (*model.CasbinRule, error)
-	DeletePolicy(c context.Context, id uint) error
-	StorePolicy(c context.Context, role model.CasbinRule) (*model.CasbinRule, error)
-	CompanyPolicy(c context.Context, u_id uuid.UUID) ([]model.Policy, error)
-	CompanyPolicies(ctx context.Context) ([]model.Policy, error)
-}
 
 //SmsUsecase interface contains function of business logic port for domain PushedNotification
 type SmsUsecase interface {
@@ -72,9 +63,16 @@ type LoginUseCase interface {
 }
 
 type PermissionUseCase interface {
+	AddBulkPermissions(prms []model.RolePermission)
+
+	AddPermission(prm model.RolePermission) error
+
 	MigratePermissionsToCasbin() error
-	AddBulkPermissions(prms []model.Permission)
-	GetPermissions(prm model.Permission) []model.Permission
-	AddPermission(prm model.Permission) error
-	IsAuthorized(prm model.Permission) (bool, error)
+
+	AddRole(rl model.UserRole) error
+
+	GetUserPermissionsInCompany(userId uuid.UUID, prm model.RolePermission) []model.RolePermission
+	GetAllUserPermissions(userId uuid.UUID) []model.RolePermission
+
+	IsAuthorized(prm model.RolePermission) (bool, error)
 }

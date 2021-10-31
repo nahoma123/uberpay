@@ -32,6 +32,12 @@ type UserHandler interface {
 	RegisterUser(c *gin.Context)
 }
 
+// PermissionHandler contans a function of handlers for the domian file
+type PermissionHandler interface {
+	AddPermission(c *gin.Context)
+	GetUserPermissions(c *gin.Context)
+}
+
 // PolicyHandler contains a function of handlers for the domain file
 type PolicyHandler interface {
 	PolicyMiddleWare(c *gin.Context)

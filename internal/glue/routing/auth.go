@@ -7,7 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthRoutes(grp *gin.RouterGroup, authMiddleware middleware.AuthMiddleware, loginHandler server.AuthHandler) {
+func AuthRoutes(grp *gin.RouterGroup, authMiddleware middleware.AuthMiddleware, loginHandler server.AuthHandler, permissionHandler server.PermissionHandler) {
 	grp.POST("/login", loginHandler.Login)
+	grp.GET("/user/:userId/permissions", permissionHandler.GetUserPermissions)
 
 }

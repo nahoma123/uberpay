@@ -33,7 +33,10 @@ func AuthInit(utils utils.Utils, router *gin.RouterGroup) {
 	authUsecases := authUsecase.Initialize(usrPersistence, *jwtManager, utils)
 	authHandlers := authHandler.NewAuthHandler(authUsecases, utils)
 
+	permissionUsecases := authUsecase.InitializePermission(utils)
+	permissionHandler := authHandler.NewPermissionHandler(permissionUsecases, utils)
+
 	routing2.RoleRoutes(router, AuthMiddleware(utils), roleHandler)
 	// routing2.PolicyRoutes(router, permHandler)
-	routing2.AuthRoutes(router, AuthMiddleware(utils), authHandlers)
+	routing2.AuthRoutes(router, AuthMiddleware(utils), authHandlers, permissionHandler)
 }
