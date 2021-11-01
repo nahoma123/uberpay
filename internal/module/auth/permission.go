@@ -57,7 +57,10 @@ func (srv permissionservice) MigratePermissionsToCasbin() error {
 
 // add user in role for a domain i.e company_id, personaluser, driver
 func (srv permissionservice) AddRole(rl model.UserRole) (*model.UserRole, *errors.ErrorModel) {
-	constant.StructValidator(rl, srv.validator, srv.translator)
+	errV := constant.VerifyInput(rl, srv.validator, srv.translator)
+	if errV != nil {
+		return nil, errV
+	}
 	_, err := srv.enforcer.AddRoleForUserInDomain(rl.UserId, rl.Role, rl.Tenant)
 	if err != nil {
 		return nil, appErr.ServiceError(appErr.ErrorUnableToBindJsonToStruct)

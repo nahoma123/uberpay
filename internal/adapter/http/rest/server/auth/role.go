@@ -1,14 +1,15 @@
 package auth
 
 import (
+	errs "errors"
 	"fmt"
 	"net/http"
 	"ride_plus/internal/constant/errors"
-	"ride_plus/internal/constant/rest"
-	"ride_plus/internal/module/auth"
-
+	appErr "ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
+	"ride_plus/internal/constant/rest"
+	"ride_plus/internal/module/auth"
 
 	"github.com/gin-gonic/gin"
 	ut "github.com/go-playground/universal-translator"
@@ -77,7 +78,7 @@ func (n rolesHandler) AddRole(c *gin.Context) {
 	r, err := n.roleUseCase.StoreRole(ctx, rl)
 	fmt.Println("error handler ", err)
 	if err != nil {
-		rest.ErrorResponseJson(c, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(c, err, appErr.StatusCodes[errs.New(err.ErrorMessage)])
 		return
 	}
 	rest.ErrorResponseJson(c, r, http.StatusOK)
