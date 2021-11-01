@@ -1,9 +1,9 @@
 package constant
 
 import (
-	"errors"
 	"fmt"
 	"os"
+	"ride_plus/internal/constant/errors"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -16,13 +16,31 @@ const (
 )
 
 //StructValidator validates specific struct
-func StructValidator(structName interface{}, validate *validator.Validate, trans ut.Translator) error {
+func StructValidator(structName interface{}, validate *validator.Validate, trans ut.Translator) []string {
+	var errorList []string
 	errV := validate.Struct(structName)
 	if errV != nil {
 		errs := errV.(validator.ValidationErrors)
-		return errors.New(errs[0].Translate(trans))
+		for _, e := range errs {
+			errorList = append(errorList, e.Translate(trans))
+		}
+		return errorList
 	}
 	return nil
+}
+
+// wrap field validator with error code
+func VerifyInput(structName interface{}, validate *validator.Validate, trans ut.Translator) *errors.ErrorModel {
+	errs := StructValidator(structName, validate, trans)
+	if errs == nil {
+		return nil
+	}
+	return &errors.ErrorModel{
+		ErrorCode:        errors.ErrCodes[errors.ErrInvalidField],
+		ErrorDescription: errors.Descriptions[errors.ErrInvalidField],
+		ErrorMessage:     errors.ErrOneOrMoreFieldsInvalid.Error(),
+		ErrorDetail:      errs,
+	}
 }
 
 //DbConnectionString connction string finder from the .env file

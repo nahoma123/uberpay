@@ -5,6 +5,7 @@ import (
 	"fmt"
 	company "ride_plus/internal/adapter/storage/persistence"
 	"ride_plus/internal/constant"
+	"ride_plus/internal/constant/errors"
 	custErr "ride_plus/internal/constant/errors"
 	"ride_plus/internal/module"
 	"time"
@@ -54,10 +55,10 @@ func (s *service) StoreCompanyImage(c context.Context, param model.CompanyImage)
 	return image, nil
 
 }
-func (s *service) UpdateCompanyImage(c context.Context, param model.CompanyImage) (*model.CompanyImage, error) {
+func (s *service) UpdateCompanyImage(c context.Context, param model.CompanyImage) (*model.CompanyImage, *errors.ErrorModel) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	errV := constant.StructValidator(param, s.validate, s.trans)
+	errV := constant.VerifyInput(param, s.validate, s.trans)
 	if errV != nil {
 		return nil, errV
 	}
@@ -84,10 +85,10 @@ func (s *service) CompanyByID(c context.Context, param model.Company) (*model.Co
 	return s.companyPersist.CompanyByID(ctx, param)
 }
 
-func (s *service) StoreCompany(c context.Context, param model.Company) (*model.Company, error) {
+func (s *service) StoreCompany(c context.Context, param model.Company) (*model.Company, *errors.ErrorModel) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	errV := constant.StructValidator(param, s.validate, s.trans)
+	errV := constant.VerifyInput(param, s.validate, s.trans)
 	if errV != nil {
 		return nil, errV
 	}
@@ -95,10 +96,10 @@ func (s *service) StoreCompany(c context.Context, param model.Company) (*model.C
 
 }
 
-func (s *service) UpdateCompany(c context.Context, param model.Company) (*model.Company, error) {
+func (s *service) UpdateCompany(c context.Context, param model.Company) (*model.Company, *errors.ErrorModel) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	errV := constant.StructValidator(param, s.validate, s.trans)
+	errV := constant.VerifyInput(param, s.validate, s.trans)
 	if errV != nil {
 		return nil, errV
 	}

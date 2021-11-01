@@ -76,6 +76,7 @@ var (
 	ErrUnsupportedDriver            = errors.New("Unsupported driver")
 	ErrInvalidDB                    = errors.New("invalid db")
 	ErrInvalidField                 = errors.New("Empty field exist")
+	ErrOneOrMoreFieldsInvalid       = errors.New("one or more fields are invalid")
 	ErrConflictHappened             = errors.New("conflict happened")
 	ErrRequireApproval              = errors.New("Require approval")
 	ErrUnSupportedSize              = errors.New("Unsupported size")
@@ -84,6 +85,7 @@ var (
 
 // Descriptions error description
 var Descriptions = map[error]string{
+	ErrOneOrMoreFieldsInvalid: "one or more fields are invalid",
 
 	ErrAuthorizationTokenNotProvided:  "authorization token not provided",
 	ErrUnknown:                        "Unknown  error",
@@ -138,8 +140,8 @@ var Descriptions = map[error]string{
 
 // StatusCodes response error HTTP status code
 var StatusCodes = map[error]int{
-	ErrInvalidRequest: 400,
-
+	ErrInvalidRequest:                 400,
+	ErrOneOrMoreFieldsInvalid:         400,
 	ErrUnauthorizedClient:             401,
 	ErrAuthorizationTokenNotProvided:  401,
 	ErrAccessDenied:                   403,
@@ -196,6 +198,7 @@ var ErrCodes = map[error]int{
 	ErrPasswordEncryption:             5000,
 	ErrInvalidAccessToken:             4017,
 	ErrInvalidRequest:                 4000,
+	ErrOneOrMoreFieldsInvalid:         4000,
 	ErrUnauthorizedClient:             4001,
 	ErrAccessDenied:                   4002,
 	ErrUnsupportedResponseType:        4003,

@@ -3,11 +3,9 @@ package auth
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"ride_plus/internal/constant/errors"
 	"ride_plus/internal/constant/rest"
 	"ride_plus/internal/module/auth"
-	"strings"
 
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
@@ -79,17 +77,6 @@ func (n rolesHandler) AddRole(c *gin.Context) {
 	r, err := n.roleUseCase.StoreRole(ctx, rl)
 	fmt.Println("error handler ", err)
 	if err != nil {
-		if strings.Contains(err.Error(), os.Getenv("ErrSecretKey")) {
-			e := strings.Replace(err.Error(), os.Getenv("ErrSecretKey"), "", 1)
-			errValue := errors.ErrorModel{
-				ErrorCode:        errors.ErrCodes[errors.ErrInvalidField],
-				ErrorDescription: errors.Descriptions[errors.ErrInvalidField],
-				ErrorMessage:     e,
-			}
-			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
-			return
-		}
-		err := errors.ServiceError(err.(error))
 		rest.ErrorResponseJson(c, err, http.StatusBadRequest)
 		return
 	}

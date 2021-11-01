@@ -4,6 +4,7 @@ import (
 	"context"
 	storage "ride_plus/internal/adapter/storage/persistence"
 	"ride_plus/internal/constant"
+	"ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 	"time"
@@ -16,7 +17,7 @@ type RoleUseCase interface {
 	Role(c context.Context, name string) (*model.Role, error)
 	Roles(c context.Context) ([]model.Role, error)
 	DeleteRole(c context.Context, name string) error
-	StoreRole(c context.Context, role model.Role) (*model.Role, error)
+	StoreRole(c context.Context, role model.Role) (*model.Role, *errors.ErrorModel)
 }
 type roleService struct {
 	rolePersistence storage.RolePersistence
@@ -61,10 +62,12 @@ func (s roleService) DeleteRole(c context.Context, name string) error {
 	return nil
 }
 
-func (s roleService) StoreRole(c context.Context, r model.Role) (*model.Role, error) {
+func (s roleService) StoreRole(c context.Context, r model.Role) (*model.Role, *errors.ErrorModel) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	errV := constant.StructValidator(r, s.validate, s.trans)
+
+	// verify input from transport layer
+	errV := constant.VerifyInput(r, s.validate, s.trans)
 	if errV != nil {
 		return nil, errV
 	}

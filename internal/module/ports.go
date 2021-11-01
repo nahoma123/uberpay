@@ -50,7 +50,7 @@ type CompanyUsecase interface {
 	CompanyByID(ctx context.Context, param model.Company) (*model.Company, error)
 	Companies(ctx context.Context) ([]model.Company, error)
 	StoreCompany(ctx context.Context, param model.Company) (*model.Company, error)
-	UpdateCompany(ctx context.Context, param model.Company) (*model.Company, error)
+	UpdateCompany(ctx context.Context, param model.Company) (*model.Company, *errors.ErrorModel)
 	DeleteCompany(ctx context.Context, param model.Company) error
 	StoreCompanyImage(ctx context.Context, images model.CompanyImage) (*model.CompanyImage, error)
 	UpdateCompanyImage(c context.Context, param model.CompanyImage) (*model.CompanyImage, error)

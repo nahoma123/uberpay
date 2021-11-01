@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"ride_plus/internal/constant"
 	"ride_plus/internal/module"
 	"time"
 
@@ -12,18 +13,23 @@ import (
 	"ride_plus/internal/constant/permission"
 
 	"github.com/casbin/casbin/v2"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 	uuid "github.com/satori/go.uuid"
 )
 
 type permissionservice struct {
 	contextTimeout time.Duration
 	enforcer       *casbin.Enforcer
+	validator      *validator.Validate
+	translator     ut.Translator
 }
 
 func InitializePermission(utils utils.Utils) module.PermissionUseCase {
 	return &permissionservice{
 		contextTimeout: utils.Timeout,
 		enforcer:       utils.Enforcer,
+		validator:      utils.GoValidator,
 	}
 }
 
@@ -49,13 +55,9 @@ func (srv permissionservice) MigratePermissionsToCasbin() error {
 	return nil
 }
 
+// add user in role for a domain i.e company_id, personaluser, driver
 func (srv permissionservice) AddRole(rl model.UserRole) (*model.UserRole, *errors.ErrorModel) {
-	// _, err := srv.enforcer.AddRoleForUserInDomain(rl.UserId, rl.Role, rl.Tenant)
-	// permissionsMap, err := srv.enforcer.GetRolesForUser(rl.UserId, rl.Tenant)
-	// fmt.Println("ERR-", err)
-	// fmt.Println("permissionsMap", permissionsMap)
-	// return nil
-
+	constant.StructValidator(rl, srv.validator, srv.translator)
 	_, err := srv.enforcer.AddRoleForUserInDomain(rl.UserId, rl.Role, rl.Tenant)
 	if err != nil {
 		return nil, appErr.ServiceError(appErr.ErrorUnableToBindJsonToStruct)

@@ -1,9 +1,10 @@
 package errors
 
 type ErrorModel struct {
-	ErrorCode        int    `json:"errorCode"`
-	ErrorMessage     string `json:"errorMessage"`
-	ErrorDescription string `json:"errorDescription"`
+	ErrorCode        int      `json:"errorCode"`
+	ErrorDescription string   `json:"errorDescription"`
+	ErrorMessage     string   `json:"errorMessage"`
+	ErrorDetail      []string `json:"errorDetail"`
 }
 
 func ServiceError(err error) *ErrorModel {

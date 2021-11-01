@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	storage "ride_plus/internal/adapter/storage/persistence"
+	appErr "ride_plus/internal/constant/errors"
 	custErr "ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
@@ -48,15 +49,16 @@ func (r companyPersistence) Companies(ctx context.Context) ([]model.Company, err
 	return companies, err
 }
 
-func (r companyPersistence) StoreCompany(ctx context.Context, company model.Company) (*model.Company, error) {
+func (r companyPersistence) StoreCompany(ctx context.Context, company model.Company) (*model.Company, *appErr.ErrorModel) {
 	conn := r.conn.WithContext(ctx)
 	err := conn.Model(&model.Company{}).Create(&company).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrInvalidTransaction) {
-			return nil, gorm.ErrInvalidTransaction
+			return nil, appErr.ServiceError(gorm.ErrInvalidTransaction)
 		}
-		return nil, custErr.ErrUnableToSave
+		return nil, appErr.ServiceError(custErr.ErrUnableToSave)
 	}
+
 	return &company, nil
 }
 func (r companyPersistence) StoreCompanyImage(ctx context.Context, images model.CompanyImage) (*model.CompanyImage, error) {
@@ -240,14 +242,14 @@ func (r companyPersistence) MigrateCompany(ctx context.Context) error {
 	}
 	return nil
 }
-func (r companyPersistence) ImageExists(param model.Image) (bool, error) {
+func (r companyPersistence) ImageExists(param model.Image) (bool, *custErr.ErrorModel) {
 	var count int64 = 0
 	err := r.conn.Model(&model.Image{}).Where(&model.Image{Hash: param.Hash}).Count(&count).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, gorm.ErrRecordNotFound
+			return false, appErr.ServiceError(err)
 		}
-		return false, custErr.ErrorUnableToFetch
+		return false, appErr.ServiceError(custErr.ErrorUnableToFetch)
 	}
 	return count > 0, nil
 }

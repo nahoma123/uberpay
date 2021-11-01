@@ -2,6 +2,8 @@ package storage
 
 import (
 	"context"
+	"ride_plus/internal/constant/errors"
+	appErr "ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
 
 	"github.com/casbin/casbin/v2"
@@ -14,7 +16,7 @@ type RolePersistence interface {
 	Roles(ctx context.Context) ([]model.Role, error)
 	UpdateRole(ctx context.Context, role model.Role) (*model.Role, error)
 	DeleteRole(ctx context.Context, name string) error
-	StoreRole(ctx context.Context, role model.Role) (*model.Role, error)
+	StoreRole(ctx context.Context, role model.Role) (*model.Role, *errors.ErrorModel)
 	RoleExists(ctx context.Context, name string) (bool, error)
 	MigrateRole() error
 }
@@ -67,7 +69,7 @@ type SmsPersistence interface {
 type CompanyPersistence interface {
 	CompanyByID(ctx context.Context, param model.Company) (*model.Company, error)
 	Companies(ctx context.Context) ([]model.Company, error)
-	StoreCompany(ctx context.Context, param model.Company) (*model.Company, error)
+	StoreCompany(ctx context.Context, param model.Company) (*model.Company, *appErr.ErrorModel)
 	UpdateCompany(ctx context.Context, param model.Company) (*model.Company, error)
 	DeleteCompany(ctx context.Context, param model.Company) error
 	CompanyExists(ctx context.Context, param model.Company) (bool, error)

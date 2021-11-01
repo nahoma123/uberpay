@@ -1,9 +1,13 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"ride_plus/internal/adapter/http/rest/server"
 	"ride_plus/internal/module"
+
+	appErr "ride_plus/internal/constant/errors"
 
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
@@ -43,10 +47,10 @@ func (ph permissionHandler) AddUserRole(c *gin.Context) {
 	role := c.MustGet("x-request").(model.UserRole)
 	rl, srvErr := ph.permissionUseCase.AddRole(role)
 	if srvErr != nil {
-		rest.ErrorResponseJson(c, srvErr, 200)
+		rest.ErrorResponseJson(c, srvErr, appErr.StatusCodes[errors.New(srvErr.ErrorMessage)])
 		return
 	}
-	rest.SuccessResponseJson(c, nil, rl, 200)
+	rest.SuccessResponseJson(c, nil, rl, http.StatusCreated)
 }
 
 func (ph permissionHandler) GetCompanyRoles(c *gin.Context) {

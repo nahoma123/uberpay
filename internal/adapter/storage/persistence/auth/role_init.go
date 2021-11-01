@@ -2,9 +2,9 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	storage "ride_plus/internal/adapter/storage/persistence"
 	"ride_plus/internal/constant/errors"
+	appErr "ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
 
@@ -61,12 +61,12 @@ func (r rolePersistence) DeleteRole(ctx context.Context, name string) error {
 	return nil
 }
 
-func (r rolePersistence) StoreRole(ctx context.Context, role model.Role) (*model.Role, error) {
+func (r rolePersistence) StoreRole(ctx context.Context, role model.Role) (*model.Role, *errors.ErrorModel) {
 	conn := r.conn
 	err := conn.Model(&model.Role{}).Create(&role).Error
-	fmt.Println("error ", err)
+
 	if err != nil {
-		return nil, errors.ErrUnableToSave
+		return nil, appErr.ServiceError(errors.ErrUnableToSave)
 	}
 	return &role, nil
 }
