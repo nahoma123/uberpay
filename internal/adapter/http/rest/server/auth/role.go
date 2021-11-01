@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"ride_plus/internal/constant"
 	"ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/rest"
 	"ride_plus/internal/module/auth"
 	"strings"
 
@@ -42,7 +42,7 @@ func (n rolesHandler) RoleMiddleWare(c *gin.Context) {
 			ErrorDescription: errors.Descriptions[errors.ErrInvalidRequest],
 			ErrorMessage:     errors.ErrInvalidRequest.Error(),
 		}
-		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidRequest])
+		rest.ErrorResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidRequest])
 		return
 	}
 	c.Set("x-role", roleX)
@@ -53,11 +53,11 @@ func (n rolesHandler) GetRoles(c *gin.Context) {
 	ctx := c.Request.Context()
 	roles, err := n.roleUseCase.Roles(ctx)
 	if err != nil {
-		ee := errors.NewErrorResponse(err)
-		constant.ResponseJson(c, ee, http.StatusBadRequest)
+		ee := errors.ServiceError(err)
+		rest.ErrorResponseJson(c, ee, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, roles, http.StatusBadRequest)
+	rest.ErrorResponseJson(c, roles, http.StatusBadRequest)
 }
 
 func (n rolesHandler) GetRoleByName(c *gin.Context) {
@@ -65,8 +65,8 @@ func (n rolesHandler) GetRoleByName(c *gin.Context) {
 	ctx := c.Request.Context()
 	r, err := n.roleUseCase.Role(ctx, rolename)
 	if err != nil {
-		ee := errors.NewErrorResponse(err)
-		constant.ResponseJson(c, ee, http.StatusOK)
+		ee := errors.ServiceError(err)
+		rest.ErrorResponseJson(c, ee, http.StatusOK)
 		return
 	}
 	c.JSON(200, r)
@@ -86,14 +86,14 @@ func (n rolesHandler) AddRole(c *gin.Context) {
 				ErrorDescription: errors.Descriptions[errors.ErrInvalidField],
 				ErrorMessage:     e,
 			}
-			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		err := errors.NewErrorResponse(err.(error))
-		constant.ResponseJson(c, err, http.StatusBadRequest)
+		err := errors.ServiceError(err.(error))
+		rest.ErrorResponseJson(c, err, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, r, http.StatusOK)
+	rest.ErrorResponseJson(c, r, http.StatusOK)
 
 }
 
@@ -102,10 +102,10 @@ func (n rolesHandler) DeleteRole(c *gin.Context) {
 	rolename := c.Param("name")
 	err := n.roleUseCase.DeleteRole(ctx, rolename)
 	if err != nil {
-		ee := errors.NewErrorResponse(err)
-		constant.ResponseJson(c, ee, http.StatusBadRequest)
+		ee := errors.ServiceError(err)
+		rest.ErrorResponseJson(c, ee, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, "Deleted Successfully", http.StatusOK)
+	rest.ErrorResponseJson(c, "Deleted Successfully", http.StatusOK)
 
 }

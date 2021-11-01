@@ -6,8 +6,11 @@ type ErrorModel struct {
 	ErrorDescription string `json:"errorDescription"`
 }
 
-func NewErrorResponse(err error) ErrorModel {
-	return ErrorModel{
+func ServiceError(err error) *ErrorModel {
+	if err == nil {
+		return nil
+	}
+	return &ErrorModel{
 		ErrorMessage:     err.Error(),
 		ErrorDescription: Descriptions[err],
 		ErrorCode:        ErrCodes[err],

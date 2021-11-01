@@ -1,14 +1,15 @@
 package middleware
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"ride_plus/internal/constant"
 	"ride_plus/internal/module"
 	"strings"
 
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
+	"ride_plus/internal/constant/rest"
 
 	appErr "ride_plus/internal/constant/errors"
 
@@ -32,6 +33,8 @@ var actions = map[string]string{
 type AuthMiddleware interface {
 	Authorizer(permission string) gin.HandlerFunc
 	ExtractToken(r *http.Request) string
+	BindPermissionRequest() gin.HandlerFunc
+	BindRoleRequest() gin.HandlerFunc
 }
 
 type authMiddleWare struct {
@@ -54,16 +57,16 @@ func (n *authMiddleWare) Authorizer(prm string) gin.HandlerFunc {
 		status := Status{}
 		err := c.Bind(&status)
 		if err != nil {
-			err := appErr.NewErrorResponse(appErr.ErrorUnableToBindJsonToStruct)
-			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrorUnableToBindJsonToStruct])
+			err := appErr.ServiceError(appErr.ErrorUnableToBindJsonToStruct)
+			rest.ErrorResponseJson(c, err, appErr.StatusCodes[appErr.ErrorUnableToBindJsonToStruct])
 			c.AbortWithStatus(appErr.StatusCodes[appErr.ErrorUnableToBindJsonToStruct])
 			return
 		}
 
 		claims, err := n.authUseCase.GetClaims(token)
 		if err != nil {
-			err := appErr.NewErrorResponse(appErr.ErrInvalidAccessToken)
-			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrInvalidAccessToken])
+			err := appErr.ServiceError(appErr.ErrInvalidAccessToken)
+			rest.ErrorResponseJson(c, err, appErr.StatusCodes[appErr.ErrInvalidAccessToken])
 			c.AbortWithStatus(appErr.StatusCodes[appErr.ErrInvalidAccessToken])
 			return
 		}
@@ -76,8 +79,8 @@ func (n *authMiddleWare) Authorizer(prm string) gin.HandlerFunc {
 				c.Set("x-companyid", claims.CompanyID)
 			}
 		} else {
-			err := appErr.NewErrorResponse(appErr.ErrAuthorizationTokenNotProvided)
-			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrAuthorizationTokenNotProvided])
+			err := appErr.ServiceError(appErr.ErrAuthorizationTokenNotProvided)
+			rest.ErrorResponseJson(c, err, appErr.StatusCodes[appErr.ErrAuthorizationTokenNotProvided])
 			c.AbortWithStatus(appErr.StatusCodes[appErr.ErrAuthorizationTokenNotProvided])
 			return
 		}
@@ -100,14 +103,14 @@ func (n *authMiddleWare) Authorizer(prm string) gin.HandlerFunc {
 				// if status being changed or provided then we need to ensure that user has the authority to publish.
 				isAuthorized, err = n.utils.Enforcer.Enforce(claims.Subject, c_id, permission.PermissionObjects[prm], permission.PermissionActions[prm])
 				if err != nil {
-					err := appErr.NewErrorResponse(appErr.ErrPermissionPermissionNotFound)
-					constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
+					err := appErr.ServiceError(appErr.ErrPermissionPermissionNotFound)
+					rest.ErrorResponseJson(c, err, appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
 					c.AbortWithStatus(appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
 					return
 				}
 				if !isAuthorized {
-					err := appErr.NewErrorResponse(appErr.ErrUnauthorizedClient)
-					constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrUnauthorizedClient])
+					err := appErr.ServiceError(appErr.ErrUnauthorizedClient)
+					rest.ErrorResponseJson(c, err, appErr.StatusCodes[appErr.ErrUnauthorizedClient])
 					c.AbortWithStatus(appErr.StatusCodes[appErr.ErrUnauthorizedClient])
 					return
 				}
@@ -116,14 +119,14 @@ func (n *authMiddleWare) Authorizer(prm string) gin.HandlerFunc {
 
 		isAuthorized, err = n.utils.Enforcer.Enforce(claims.Subject, c_id, permission.DraftPermissions[prm], permission.PermissionActions[prm])
 		if err != nil {
-			err := appErr.NewErrorResponse(appErr.ErrPermissionPermissionNotFound)
-			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
+			err := appErr.ServiceError(appErr.ErrPermissionPermissionNotFound)
+			rest.ErrorResponseJson(c, err, appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
 			c.AbortWithStatus(appErr.StatusCodes[appErr.ErrPermissionPermissionNotFound])
 			return
 		}
 		if !isAuthorized {
-			err := appErr.NewErrorResponse(appErr.ErrUnauthorizedClient)
-			constant.ResponseJson(c, err, appErr.StatusCodes[appErr.ErrUnauthorizedClient])
+			err := appErr.ServiceError(appErr.ErrUnauthorizedClient)
+			rest.ErrorResponseJson(c, err, appErr.StatusCodes[appErr.ErrUnauthorizedClient])
 			c.AbortWithStatus(appErr.StatusCodes[appErr.ErrUnauthorizedClient])
 			return
 		}
@@ -147,13 +150,31 @@ func (n *authMiddleWare) ExtractToken(r *http.Request) string {
 
 func (n *authMiddleWare) BindPermissionRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		rlPermission := model.RolePermission{}
-		err := c.Bind(rlPermission)
+		reqModel := model.RolePermission{}
+		err := c.Bind(&reqModel)
 		if err != nil {
-			constant.ResponseJson(c, appErr.NewErrorResponse(appErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
+			fmt.Println("Err", err)
+			rest.ErrorResponseJson(c, appErr.ServiceError(appErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 			return
 		}
-		c.Set("request", rlPermission)
+		c.Set("x-request", reqModel)
+		c.Next()
+	}
+}
+
+func (n *authMiddleWare) BindRoleRequest() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		reqModel := model.UserRole{}
+		err := c.Bind(&reqModel)
+		if err != nil {
+			fmt.Println("Err", err)
+			rest.ErrorResponseJson(c, appErr.ServiceError(appErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
+			return
+		}
+		userId := c.Param("user-id")
+		reqModel.UserId = userId
+		c.Set("x-request", reqModel)
+
 		c.Next()
 	}
 }

@@ -12,18 +12,18 @@ type CasbinRule struct {
 }
 
 type RolePermission struct {
-	ID        string `json:"-"`
-	Role      string `gorm:"column:v0" json:"role,omitempty"`
-	CompanyId string `gorm:"column:v1" json:"company,omitempty"`
-	UserId    string `json:"user_id,omitempty"`
-	Name      string `gorm:"column:v2" json:"name,omitempty"`
-	Object    string `gorm:"column:v2" json:"-"`
-	Action    string `gorm:"column:v3" json:"description,omitempty"`
+	ID     string `json:"-"`
+	Role   string `gorm:"column:v0" json:"role,omitempty"`
+	Tenant string `gorm:"column:v1" json:"tenant,omitempty"`
+	UserId string `json:"user_id,omitempty"`
+	Name   string `gorm:"column:v2" json:"name,omitempty"`
+	Object string `gorm:"column:v2" json:"-"`
+	Action string `gorm:"column:v3" json:"description,omitempty"`
 }
 
 type UserRole struct {
-	ID        string `json:"id"`
-	Role      string `gorm:"column:v1" json:"role"`
-	UserId    string `gorm:"column:v0" json:"user_id"`
-	CompanyId string `gorm:"column:v2" json:"company,omitempty"`
+	ID     string `json:"-"`
+	Role   string `gorm:"column:v1" json:"role"`
+	UserId string `gorm:"column:v0" json:"user_id"`
+	Tenant string `gorm:"column:v2" json:"tenant,omitempty"`
 }

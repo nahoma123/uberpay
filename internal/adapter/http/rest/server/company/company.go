@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"ride_plus/internal/adapter/http/rest/server"
 	"ride_plus/internal/adapter/http/rest/server/image"
-	"ride_plus/internal/constant"
 	custErr "ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
+	"ride_plus/internal/constant/rest"
 	"ride_plus/internal/module"
 	"strings"
 	"time"
@@ -40,13 +40,13 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	err := ctx.Bind(image)
 	//fmt.Println("form ",image)
 	if err != nil {
-		constant.ResponseJson(ctx, custErr.NewErrorResponse(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, custErr.ServiceError(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 		return
 	}
 	extension := filepath.Ext(image.ImageFile.Filename)
 	hash, err := com.store.AverageHash(image.ImageFile)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	//puts types of hashing algorithm with image hash separating by _ (eg a: by a_ alg type=a)
@@ -62,20 +62,20 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 			ErrorMessage:     custErr.ErrUnSupportedSize.Error(),
 			ErrorDescription: custErr.Descriptions[custErr.ErrUnSupportedSize],
 		}
-		constant.ResponseJson(ctx, nrr, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, nrr, http.StatusBadRequest)
 		return
 	}
 
 	m, err := com.store.Resize(image.ImageFile, 600, 600)
 	rnimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	imageInfo, err := rnimg.Stat()
 	fmt.Println("line 97 error ", err)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	image.Size = imageInfo.Size()
@@ -96,13 +96,13 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	m, err = com.store.Resize(image.ImageFile, 156, 156)
 	rtimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	rtInfo, err := rtimg.Stat()
 	fmt.Println("line 97 error ", err)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	thumbnail.Width = 156
@@ -118,13 +118,13 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	m, err = com.store.Resize(image.ImageFile, 500, 500)
 	rsimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	rsInfo, err := rsimg.Stat()
 	fmt.Println("line 117 error ", err)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	small.Width = 500
@@ -139,31 +139,31 @@ func (com companyHandler) StoreCompanyImage(ctx *gin.Context) {
 	companyImage, err := com.companyUsecase.StoreCompanyImage(ctx.Request.Context(), parm)
 	fmt.Println("line 130 error ", err)
 	if err != nil {
-		nrr := custErr.NewErrorResponse(err)
-		constant.ResponseJson(ctx, nrr, http.StatusBadRequest)
+		nrr := custErr.ServiceError(err)
+		rest.ErrorResponseJson(ctx, nrr, http.StatusBadRequest)
 		return
 	}
 	//save normal image at server assets/images/normal directory
 	err = com.SaveFile(image.ImageFile, "normal", image.Name, 600, 600)
 	fmt.Println("error ", err)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	//save thumbnail image at server assets/images/thumbnail directory
 	err = com.SaveFile(image.ImageFile, "thumbnail", thumbnail.Name, 156, 156)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	//save small image at server assets/images/small directory
 	err = com.SaveFile(image.ImageFile, "small", small.Name, 500, 500)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 
-	constant.ResponseJson(ctx, companyImage, http.StatusOK)
+	rest.ErrorResponseJson(ctx, companyImage, http.StatusOK)
 }
 func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	image := &model.Image{}
@@ -172,13 +172,13 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	err := ctx.Bind(image)
 	//fmt.Println("form ",image)
 	if err != nil {
-		constant.ResponseJson(ctx, custErr.NewErrorResponse(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, custErr.ServiceError(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 		return
 	}
 	extension := filepath.Ext(image.ImageFile.Filename)
 	hash, err := com.store.AverageHash(image.ImageFile)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	hash_rep := strings.Replace(hash, ":", "_", -1)
@@ -192,19 +192,19 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 			ErrorMessage:     custErr.ErrUnSupportedSize.Error(),
 			ErrorDescription: custErr.Descriptions[custErr.ErrUnSupportedSize],
 		}
-		constant.ResponseJson(ctx, nrr, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, nrr, http.StatusBadRequest)
 		return
 	}
 	m, err := com.store.Resize(image.ImageFile, 600, 600)
 	rnimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	imageInfo, err := rnimg.Stat()
 	fmt.Println("line 97 error ", err)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	image.Size = imageInfo.Size()
@@ -225,13 +225,13 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	m, err = com.store.Resize(image.ImageFile, 156, 156)
 	rtimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	rtInfo, err := rtimg.Stat()
 	fmt.Println("line 97 error ", err)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	thumbnail.Width = 156
@@ -248,7 +248,7 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	m, err = com.store.Resize(image.ImageFile, 300, 300)
 	rsimg, err := com.store.FileInfo(extension, m)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 
@@ -256,7 +256,7 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	fmt.Println("line 117 error ", err)
 	fmt.Println("size ", rsInfo.Size())
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	small.Width = 300
@@ -271,8 +271,8 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	companyImage, err := com.companyUsecase.UpdateCompanyImage(ctx.Request.Context(), parm)
 	fmt.Println("line 130 error ", err)
 	if err != nil {
-		nrr := custErr.NewErrorResponse(err)
-		constant.ResponseJson(ctx, nrr, http.StatusBadRequest)
+		nrr := custErr.ServiceError(err)
+		rest.ErrorResponseJson(ctx, nrr, http.StatusBadRequest)
 		return
 	}
 
@@ -280,64 +280,64 @@ func (com companyHandler) UpdateCompanyImage(ctx *gin.Context) {
 	err = com.UpdateFile(image.ImageFile, "normal", image.Name, 600, 600)
 	fmt.Println("line 291 error ", err)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	//save thumbnail image at server assets/images/thumbnail directory
 	err = com.UpdateFile(image.ImageFile, "thumbnail", thumbnail.Name, 156, 156)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
 	//save small image at server assets/images/small directory
 	err = com.UpdateFile(image.ImageFile, "small", small.Name, 300, 300)
 	if err != nil {
-		constant.ResponseJson(ctx, err, http.StatusBadRequest)
+		rest.ErrorResponseJson(ctx, err, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(ctx, companyImage, http.StatusOK)
+	rest.ErrorResponseJson(ctx, companyImage, http.StatusOK)
 }
 func (com companyHandler) CompanyImages(c *gin.Context) {
 	ctx := c.Request.Context()
 	successData, err := com.companyUsecase.CompanyImages(ctx)
 	if err != nil {
-		nrr := custErr.NewErrorResponse(err)
-		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		nrr := custErr.ServiceError(err)
+		rest.ErrorResponseJson(c, nrr, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, successData, http.StatusOK)
+	rest.ErrorResponseJson(c, successData, http.StatusOK)
 }
 func (com companyHandler) CompanyByID(c *gin.Context) {
 	id, err := uuid.FromString(c.Param("company-id"))
 	if err != nil {
-		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+		rest.ErrorResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
 	}
 	comp := model.Company{ID: id}
 	ctx := c.Request.Context()
 	successData, err := com.companyUsecase.CompanyByID(ctx, comp)
 	fmt.Println("error ", err)
 	if err != nil {
-		nrr := custErr.NewErrorResponse(err)
-		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		nrr := custErr.ServiceError(err)
+		rest.ErrorResponseJson(c, nrr, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, successData, http.StatusOK)
+	rest.ErrorResponseJson(c, successData, http.StatusOK)
 }
 func (com companyHandler) Companies(c *gin.Context) {
 	ctx := c.Request.Context()
 	successData, err := com.companyUsecase.Companies(ctx)
 	if err != nil {
-		nrr := custErr.NewErrorResponse(err)
-		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		nrr := custErr.ServiceError(err)
+		rest.ErrorResponseJson(c, nrr, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, successData, http.StatusOK)
+	rest.ErrorResponseJson(c, successData, http.StatusOK)
 }
 func (com companyHandler) StoreCompany(c *gin.Context) {
 	comp := &model.Company{}
 	err := c.Bind(comp)
 	if err != nil {
-		constant.ResponseJson(c, custErr.NewErrorResponse(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
+		rest.ErrorResponseJson(c, custErr.ServiceError(custErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 		return
 	}
 	ctx := c.Request.Context()
@@ -350,18 +350,18 @@ func (com companyHandler) StoreCompany(c *gin.Context) {
 				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
 				ErrorMessage:     e,
 			}
-			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		constant.ResponseJson(c, custErr.NewErrorResponse(err), custErr.ErrCodes[err])
+		rest.ErrorResponseJson(c, custErr.ServiceError(err), custErr.ErrCodes[err])
 		return
 	}
-	constant.ResponseJson(c, *successData, http.StatusOK)
+	rest.ErrorResponseJson(c, *successData, http.StatusOK)
 }
 func (com companyHandler) UpdateCompany(c *gin.Context) {
 	id, err := uuid.FromString(c.Param("company-id"))
 	if err != nil {
-		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+		rest.ErrorResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
 		return
 	}
 	comp := model.Company{ID: id}
@@ -375,18 +375,18 @@ func (com companyHandler) UpdateCompany(c *gin.Context) {
 				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
 				ErrorMessage:     e,
 			}
-			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		constant.ResponseJson(c, custErr.NewErrorResponse(err), custErr.ErrCodes[err])
+		rest.ErrorResponseJson(c, custErr.ServiceError(err), custErr.ErrCodes[err])
 		return
 	}
-	constant.ResponseJson(c, *successData, http.StatusOK)
+	rest.ErrorResponseJson(c, *successData, http.StatusOK)
 }
 func (com companyHandler) DeleteCompany(c *gin.Context) {
 	id, err := uuid.FromString(c.Param("company-id"))
 	if err != nil {
-		constant.ResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
+		rest.ErrorResponseJson(c, custErr.ConvertionError(), http.StatusBadRequest)
 		return
 	}
 	comp := model.Company{ID: id}
@@ -394,11 +394,11 @@ func (com companyHandler) DeleteCompany(c *gin.Context) {
 	err = com.companyUsecase.DeleteCompany(ctx, comp)
 
 	if err != nil {
-		nrr := custErr.NewErrorResponse(err)
-		constant.ResponseJson(c, nrr, http.StatusBadRequest)
+		nrr := custErr.ServiceError(err)
+		rest.ErrorResponseJson(c, nrr, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, "company Deleted", http.StatusOK)
+	rest.ErrorResponseJson(c, "company Deleted", http.StatusOK)
 }
 func (n companyHandler) SaveFile(f *multipart.FileHeader, format, path string, rwidth, rheiht uint) error {
 	fp := filepath.Join("assets", "images", format, path)

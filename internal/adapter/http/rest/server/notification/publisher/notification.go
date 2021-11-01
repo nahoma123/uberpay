@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"os"
 	"ride_plus/internal/adapter/http/rest/server"
-	"ride_plus/internal/constant"
 	"ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
+	"ride_plus/internal/constant/rest"
 	"ride_plus/internal/module"
 	"strings"
 
@@ -45,7 +45,7 @@ func (n notificationHandler) NotificationMiddleWare(c *gin.Context) {
 			ErrorDescription: errors.Descriptions[errors.ErrInvalidRequest],
 			ErrorMessage:     errors.ErrInvalidRequest.Error(),
 		}
-		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidRequest])
+		rest.ErrorResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidRequest])
 		return
 	}
 	c.Set("x-notification", notification)
@@ -57,12 +57,12 @@ func (n notificationHandler) GetNotifications(c *gin.Context) {
 	ctx := c.Request.Context()
 	notification, errData := n.notificationUseCase.Notifications(ctx)
 	if errData != nil {
-		err := errors.NewErrorResponse(errData)
+		err := errors.ServiceError(errData)
 		code := err.ErrorCode
-		constant.ResponseJson(c, err, code)
+		rest.ErrorResponseJson(c, err, code)
 		return
 	}
-	constant.ResponseJson(c, notification, http.StatusOK)
+	rest.ErrorResponseJson(c, notification, http.StatusOK)
 	return
 }
 
@@ -81,7 +81,7 @@ func (n notificationHandler) PushNotification(c *gin.Context) {
 	_, clientErr := NewClientNotification(msg)
 	if clientErr != nil {
 		code := http.StatusUnauthorized
-		constant.ResponseJson(c, clientErr, code)
+		rest.ErrorResponseJson(c, clientErr, code)
 		return
 	}
 
@@ -95,14 +95,14 @@ func (n notificationHandler) PushNotification(c *gin.Context) {
 				ErrorDescription: errors.Descriptions[errors.ErrInvalidField],
 				ErrorMessage:     e,
 			}
-			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		err := errors.NewErrorResponse(err)
-		constant.ResponseJson(c, err, http.StatusBadRequest)
+		err := errors.ServiceError(err)
+		rest.ErrorResponseJson(c, err, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, *Data, http.StatusOK)
+	rest.ErrorResponseJson(c, *Data, http.StatusOK)
 	return
 }
 
@@ -113,28 +113,28 @@ func (n notificationHandler) DeleteNotification(c *gin.Context) {
 	u_id, err := uuid.FromString(id)
 	if err != nil {
 		errValue := errors.ConvertionError()
-		constant.ResponseJson(c, errValue, http.StatusBadRequest)
+		rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 		return
 	}
 	err = n.notificationUseCase.DeleteNotification(ctx, model.PushedNotification{ID: u_id})
 	if err != nil {
-		e := errors.NewErrorResponse(err)
+		e := errors.ServiceError(err)
 		code := e.ErrorCode
 		if err != nil {
 			errValue := errors.ConvertionError()
-			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		constant.ResponseJson(c, e, code)
+		rest.ErrorResponseJson(c, e, code)
 		return
 	}
-	constant.ResponseJson(c, nil, http.StatusOK)
+	rest.ErrorResponseJson(c, nil, http.StatusOK)
 	return
 }
 func (n notificationHandler) GetCountUnreadPushNotificationMessages(c *gin.Context) {
 	ctx := c.Request.Context()
 	count := n.notificationUseCase.GetCountUnreadPushNotificationMessages(ctx)
-	constant.ResponseJson(c, map[string]interface{}{"count": count}, http.StatusOK)
+	rest.ErrorResponseJson(c, map[string]interface{}{"count": count}, http.StatusOK)
 	return
 }
 

@@ -3,10 +3,10 @@ package auth
 import (
 	"net/http"
 	"ride_plus/internal/adapter/http/rest/server"
-	"ride_plus/internal/constant"
 	appErr "ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
+	"ride_plus/internal/constant/rest"
 	"ride_plus/internal/module"
 
 	"github.com/gin-gonic/gin"
@@ -29,13 +29,13 @@ func (n authHandler) Login(c *gin.Context) {
 	authData := &model.User{}
 	err := c.Bind(authData)
 	if err != nil {
-		constant.ResponseJson(c, appErr.NewErrorResponse(appErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
+		rest.ErrorResponseJson(c, appErr.ServiceError(appErr.ErrorUnableToBindJsonToStruct), http.StatusBadRequest)
 		return
 	}
 	loginResponse, err := n.authUseCase.Login(ctx, authData.Phone, authData.Password)
 	if err != nil {
-		constant.ResponseJson(c, appErr.NewErrorResponse(err), http.StatusUnauthorized)
+		rest.ErrorResponseJson(c, appErr.ServiceError(err), http.StatusUnauthorized)
 		return
 	}
-	constant.ResponseJson(c, loginResponse, http.StatusOK)
+	rest.ErrorResponseJson(c, loginResponse, http.StatusOK)
 }

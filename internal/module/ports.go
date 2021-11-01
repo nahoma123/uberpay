@@ -2,6 +2,7 @@ package module
 
 import (
 	"context"
+	"ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
 
 	uuid "github.com/satori/go.uuid"
@@ -69,7 +70,7 @@ type PermissionUseCase interface {
 
 	MigratePermissionsToCasbin() error
 
-	AddRole(rl model.UserRole) error
+	AddRole(rl model.UserRole) (*model.UserRole, *errors.ErrorModel)
 
 	GetUserPermissionsInCompany(userId uuid.UUID, prm model.RolePermission) []model.RolePermission
 	GetAllUserPermissions(userId uuid.UUID) []model.RolePermission

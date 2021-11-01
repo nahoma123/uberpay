@@ -35,6 +35,7 @@ type UserHandler interface {
 // PermissionHandler contans a function of handlers for the domian file
 type PermissionHandler interface {
 	AddPermission(c *gin.Context)
+	AddUserRole(c *gin.Context)
 	GetUserPermissions(c *gin.Context)
 }
 

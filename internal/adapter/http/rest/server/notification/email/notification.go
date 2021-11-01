@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"os"
 	"ride_plus/internal/adapter/http/rest/server"
-	"ride_plus/internal/constant"
 	custErr "ride_plus/internal/constant/errors"
 	model "ride_plus/internal/constant/model/dbmodel"
+	"ride_plus/internal/constant/rest"
 	"ride_plus/internal/module"
 	"strconv"
 	"strings"
@@ -43,7 +43,7 @@ func (n emailHandler) EmailMessageMiddleWare(c *gin.Context) {
 			ErrorDescription: custErr.Descriptions[custErr.ErrorUnableToBindJsonToStruct],
 			ErrorMessage:     custErr.ErrorUnableToBindJsonToStruct.Error(),
 		}
-		constant.ResponseJson(c, errValue, custErr.StatusCodes[custErr.ErrorUnableToBindJsonToStruct])
+		rest.ErrorResponseJson(c, errValue, custErr.StatusCodes[custErr.ErrorUnableToBindJsonToStruct])
 		return
 	}
 	c.Set("x-email", email)
@@ -66,11 +66,11 @@ func (n emailHandler) SendEmailMessage(c *gin.Context) {
 				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
 				ErrorMessage:     e,
 			}
-			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		} else if errors.Is(err, custErr.ErrorUnableToConvert) {
 			errValue := custErr.ConvertionError()
-			constant.ResponseJson(c, errValue, custErr.ErrCodes[custErr.ErrorUnableToConvert])
+			rest.ErrorResponseJson(c, errValue, custErr.ErrCodes[custErr.ErrorUnableToConvert])
 			return
 		}
 		errValue := custErr.ErrorModel{
@@ -79,7 +79,7 @@ func (n emailHandler) SendEmailMessage(c *gin.Context) {
 			ErrorDescription: custErr.Descriptions[custErr.ErrUnableToSendEmailMessage],
 		}
 		fmt.Println("errValue ", errValue)
-		constant.ResponseJson(c, errValue, custErr.StatusCodes[custErr.ErrUnableToSendEmailMessage])
+		rest.ErrorResponseJson(c, errValue, custErr.StatusCodes[custErr.ErrUnableToSendEmailMessage])
 		return
 	}
 	// TODO:02 Email notification stored in the database storage
@@ -92,21 +92,21 @@ func (n emailHandler) SendEmailMessage(c *gin.Context) {
 				ErrorDescription: custErr.Descriptions[custErr.ErrInvalidField],
 				ErrorMessage:     e,
 			}
-			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		e := custErr.NewErrorResponse(err)
-		constant.ResponseJson(c, e, http.StatusBadRequest)
+		e := custErr.ServiceError(err)
+		rest.ErrorResponseJson(c, e, http.StatusBadRequest)
 		return
 	}
-	constant.ResponseJson(c, *Data, http.StatusOK)
+	rest.ErrorResponseJson(c, *Data, http.StatusOK)
 }
 
 //GetCountUnreadEmailMessages return the number of unread message
 func (n emailHandler) GetCountUnreadEmailMessages(c *gin.Context) {
 	ctx := c.Request.Context()
 	count := n.notificationUseCase.GetCountUnreadEmailMessages(ctx)
-	constant.ResponseJson(c, map[string]interface{}{"count": count}, http.StatusOK)
+	rest.ErrorResponseJson(c, map[string]interface{}{"count": count}, http.StatusOK)
 	return
 }
 

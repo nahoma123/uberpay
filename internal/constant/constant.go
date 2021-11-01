@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 )
@@ -15,12 +14,6 @@ const (
 	CompanyAdmin = "COMPANY-ADMIN"
 	CompanyClerk = "COMPANY-CLERK"
 )
-
-//ResponseJson creates new json object
-func ResponseJson(c *gin.Context, responseData interface{}, statusCode int) {
-	c.JSON(statusCode, responseData)
-	return
-}
 
 //StructValidator validates specific struct
 func StructValidator(structName interface{}, validate *validator.Validate, trans ut.Translator) error {

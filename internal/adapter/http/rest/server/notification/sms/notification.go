@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 	"ride_plus/internal/adapter/http/rest/server"
-	"ride_plus/internal/constant"
 	"ride_plus/internal/constant/errors"
+	"ride_plus/internal/constant/rest"
 	"ride_plus/internal/module"
 	"strings"
 
@@ -44,7 +44,7 @@ func (n smsHandler) SmsMessageMiddleWare(c *gin.Context) {
 			ErrorDescription: errors.Descriptions[errors.ErrInvalidRequest],
 			ErrorMessage:     errors.ErrInvalidRequest.Error(),
 		}
-		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidRequest])
+		rest.ErrorResponseJson(c, errValue, errors.StatusCodes[errors.ErrInvalidRequest])
 		return
 	}
 	c.Set("x-sms", sms)
@@ -64,7 +64,7 @@ func (n smsHandler) SendSmsMessage(c *gin.Context) {
 			ErrorDescription: errors.Descriptions[errors.ErrUnableToSendSmsMessage],
 			ErrorMessage:     errors.ErrUnableToSendSmsMessage.Error(),
 		}
-		constant.ResponseJson(c, errValue, errors.StatusCodes[errors.ErrUnableToSendSmsMessage])
+		rest.ErrorResponseJson(c, errValue, errors.StatusCodes[errors.ErrUnableToSendSmsMessage])
 		return
 	}
 	// TODO:02 sms notification data store in the database put here
@@ -77,13 +77,13 @@ func (n smsHandler) SendSmsMessage(c *gin.Context) {
 				ErrorDescription: errors.Descriptions[errors.ErrInvalidField],
 				ErrorMessage:     e,
 			}
-			constant.ResponseJson(c, errValue, http.StatusBadRequest)
+			rest.ErrorResponseJson(c, errValue, http.StatusBadRequest)
 			return
 		}
-		constant.ResponseJson(c, errors.NewErrorResponse(err), errors.ErrCodes[err])
+		rest.ErrorResponseJson(c, errors.ServiceError(err), errors.ErrCodes[err])
 		return
 	}
-	constant.ResponseJson(c, *data, http.StatusOK)
+	rest.ErrorResponseJson(c, *data, http.StatusOK)
 	return
 }
 
@@ -91,7 +91,7 @@ func (n smsHandler) SendSmsMessage(c *gin.Context) {
 func (n smsHandler) GetCountUnreadSMsMessages(c *gin.Context) {
 	ctx := c.Request.Context()
 	count := n.smsUseCase.GetCountUnreadSmsMessages(ctx)
-	constant.ResponseJson(c, map[string]interface{}{"count": count}, http.StatusOK)
+	rest.ErrorResponseJson(c, map[string]interface{}{"count": count}, http.StatusOK)
 }
 
 //SendSmsMessage sends sms message via phone number

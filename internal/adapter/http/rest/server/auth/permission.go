@@ -1,12 +1,13 @@
 package auth
 
 import (
+	"fmt"
 	"ride_plus/internal/adapter/http/rest/server"
 	"ride_plus/internal/module"
 
 	model "ride_plus/internal/constant/model/dbmodel"
 	utils "ride_plus/internal/constant/model/init"
-	"ride_plus/internal/constant/permission"
+	"ride_plus/internal/constant/rest"
 
 	"github.com/gin-gonic/gin"
 	ut "github.com/go-playground/universal-translator"
@@ -25,16 +26,29 @@ func NewPermissionHandler(prmUseCase module.PermissionUseCase, utils utils.Utils
 }
 
 func (ph permissionHandler) AddPermission(c *gin.Context) {
-	prm := model.RolePermission{
-		CompanyId: "PERSONAL",
-		Object:    permission.PermissionObjects[permission.CreateCompany],
-		Action:    permission.PermissionActions[permission.CreateCompany],
-	}
-	c.JSON(200, ph.permissionUseCase.AddPermission(prm))
+	prmRequest := c.MustGet("x-request").(model.RolePermission)
+	userId := c.Param("user-id")
+	fmt.Println("userId", userId)
+	prmRequest.UserId = userId
+	c.JSON(200, ph.permissionUseCase.AddPermission(prmRequest))
 }
 
 func (ph permissionHandler) GetUserPermissions(c *gin.Context) {
 	// todo :- fill the object with company as * and permission action and object from permission name
 	userId := uuid.FromStringOrNil(c.Param("userId"))
 	c.JSON(200, ph.permissionUseCase.GetAllUserPermissions(userId))
+}
+
+func (ph permissionHandler) AddUserRole(c *gin.Context) {
+	role := c.MustGet("x-request").(model.UserRole)
+	rl, srvErr := ph.permissionUseCase.AddRole(role)
+	if srvErr != nil {
+		rest.ErrorResponseJson(c, srvErr, 200)
+		return
+	}
+	rest.SuccessResponseJson(c, nil, rl, 200)
+}
+
+func (ph permissionHandler) GetCompanyRoles(c *gin.Context) {
+
 }
